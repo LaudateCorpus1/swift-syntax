@@ -24,6 +24,13 @@ public struct CodeBlockItemList: ExpressibleByArrayLiteral, SyntaxBuildable, Exp
   public init(_ elements: [ExpressibleAsCodeBlockItem]) {
     self.elements = elements.map { $0.createCodeBlockItem() }
   }
+  
+  /// Creates a new CodeBlockItemList by flattening the elements in `lists`
+  public init(combining lists: [ExpressibleAsCodeBlockItemList]) {
+    self.elements = lists.flatMap {
+      $0.createCodeBlockItemList().elements
+    }
+  }
 
   public init(arrayLiteral elements: ExpressibleAsCodeBlockItem...) {
     self.init(elements)
@@ -31,7 +38,7 @@ public struct CodeBlockItemList: ExpressibleByArrayLiteral, SyntaxBuildable, Exp
 
   public func buildCodeBlockItemList(format: Format, leadingTrivia: Trivia? = nil) -> CodeBlockItemListSyntax {
     let result = SyntaxFactory.makeCodeBlockItemList(elements.map {
-      $0.buildCodeBlockItem(format: format, leadingTrivia: Trivia.newlines(1) + format._makeIndent())
+      $0.buildCodeBlockItem(format: format, leadingTrivia: Trivia.newline + format._makeIndent())
     })
     if let leadingTrivia = leadingTrivia {
       return result.withLeadingTrivia(leadingTrivia + (result.leadingTrivia ?? []))
@@ -57,6 +64,7 @@ public struct CodeBlockItemList: ExpressibleByArrayLiteral, SyntaxBuildable, Exp
   }
 }
 
+
 /// `TupleExprElementList` represents a collection of `TupleExprElement`s.
 public struct TupleExprElementList: ExpressibleByArrayLiteral, SyntaxBuildable, ExpressibleAsTupleExprElementList {
   let elements: [TupleExprElement]
@@ -66,6 +74,13 @@ public struct TupleExprElementList: ExpressibleByArrayLiteral, SyntaxBuildable, 
   ///   - elements: A list of `ExpressibleAsTupleExprElement`
   public init(_ elements: [ExpressibleAsTupleExprElement]) {
     self.elements = elements.map { $0.createTupleExprElement() }
+  }
+  
+  /// Creates a new TupleExprElementList by flattening the elements in `lists`
+  public init(combining lists: [ExpressibleAsTupleExprElementList]) {
+    self.elements = lists.flatMap {
+      $0.createTupleExprElementList().elements
+    }
   }
 
   public init(arrayLiteral elements: ExpressibleAsTupleExprElement...) {
@@ -100,6 +115,12 @@ public struct TupleExprElementList: ExpressibleByArrayLiteral, SyntaxBuildable, 
   }
 }
 
+extension Array: ExpressibleAsTupleExprElementList where Element == ExpressibleAsTupleExprElement {
+  public func createTupleExprElementList() -> TupleExprElementList {
+    return TupleExprElementList(self)
+  }
+}
+
 /// `ArrayElementList` represents a collection of `ArrayElement`s.
 public struct ArrayElementList: ExpressibleByArrayLiteral, SyntaxBuildable, ExpressibleAsArrayElementList {
   let elements: [ArrayElement]
@@ -109,6 +130,13 @@ public struct ArrayElementList: ExpressibleByArrayLiteral, SyntaxBuildable, Expr
   ///   - elements: A list of `ExpressibleAsArrayElement`
   public init(_ elements: [ExpressibleAsArrayElement]) {
     self.elements = elements.map { $0.createArrayElement() }
+  }
+  
+  /// Creates a new ArrayElementList by flattening the elements in `lists`
+  public init(combining lists: [ExpressibleAsArrayElementList]) {
+    self.elements = lists.flatMap {
+      $0.createArrayElementList().elements
+    }
   }
 
   public init(arrayLiteral elements: ExpressibleAsArrayElement...) {
@@ -143,6 +171,12 @@ public struct ArrayElementList: ExpressibleByArrayLiteral, SyntaxBuildable, Expr
   }
 }
 
+extension Array: ExpressibleAsArrayElementList where Element == ExpressibleAsArrayElement {
+  public func createArrayElementList() -> ArrayElementList {
+    return ArrayElementList(self)
+  }
+}
+
 /// `DictionaryElementList` represents a collection of `DictionaryElement`s.
 public struct DictionaryElementList: ExpressibleByArrayLiteral, SyntaxBuildable, ExpressibleAsDictionaryElementList {
   let elements: [DictionaryElement]
@@ -152,6 +186,13 @@ public struct DictionaryElementList: ExpressibleByArrayLiteral, SyntaxBuildable,
   ///   - elements: A list of `ExpressibleAsDictionaryElement`
   public init(_ elements: [ExpressibleAsDictionaryElement]) {
     self.elements = elements.map { $0.createDictionaryElement() }
+  }
+  
+  /// Creates a new DictionaryElementList by flattening the elements in `lists`
+  public init(combining lists: [ExpressibleAsDictionaryElementList]) {
+    self.elements = lists.flatMap {
+      $0.createDictionaryElementList().elements
+    }
   }
 
   public init(arrayLiteral elements: ExpressibleAsDictionaryElement...) {
@@ -186,6 +227,12 @@ public struct DictionaryElementList: ExpressibleByArrayLiteral, SyntaxBuildable,
   }
 }
 
+extension Array: ExpressibleAsDictionaryElementList where Element == ExpressibleAsDictionaryElement {
+  public func createDictionaryElementList() -> DictionaryElementList {
+    return DictionaryElementList(self)
+  }
+}
+
 /// `StringLiteralSegments` represents a collection of `SyntaxBuildable`s.
 public struct StringLiteralSegments: ExpressibleByArrayLiteral, SyntaxBuildable, ExpressibleAsStringLiteralSegments {
   let elements: [SyntaxBuildable]
@@ -195,6 +242,13 @@ public struct StringLiteralSegments: ExpressibleByArrayLiteral, SyntaxBuildable,
   ///   - elements: A list of `ExpressibleAsSyntaxBuildable`
   public init(_ elements: [ExpressibleAsSyntaxBuildable]) {
     self.elements = elements.map { $0.createSyntaxBuildable() }
+  }
+  
+  /// Creates a new StringLiteralSegments by flattening the elements in `lists`
+  public init(combining lists: [ExpressibleAsStringLiteralSegments]) {
+    self.elements = lists.flatMap {
+      $0.createStringLiteralSegments().elements
+    }
   }
 
   public init(arrayLiteral elements: ExpressibleAsSyntaxBuildable...) {
@@ -229,6 +283,12 @@ public struct StringLiteralSegments: ExpressibleByArrayLiteral, SyntaxBuildable,
   }
 }
 
+extension Array: ExpressibleAsStringLiteralSegments where Element == ExpressibleAsSyntaxBuildable {
+  public func createStringLiteralSegments() -> StringLiteralSegments {
+    return StringLiteralSegments(self)
+  }
+}
+
 /// `DeclNameArgumentList` represents a collection of `DeclNameArgument`s.
 public struct DeclNameArgumentList: ExpressibleByArrayLiteral, SyntaxBuildable, ExpressibleAsDeclNameArgumentList {
   let elements: [DeclNameArgument]
@@ -238,6 +298,13 @@ public struct DeclNameArgumentList: ExpressibleByArrayLiteral, SyntaxBuildable, 
   ///   - elements: A list of `ExpressibleAsDeclNameArgument`
   public init(_ elements: [ExpressibleAsDeclNameArgument]) {
     self.elements = elements.map { $0.createDeclNameArgument() }
+  }
+  
+  /// Creates a new DeclNameArgumentList by flattening the elements in `lists`
+  public init(combining lists: [ExpressibleAsDeclNameArgumentList]) {
+    self.elements = lists.flatMap {
+      $0.createDeclNameArgumentList().elements
+    }
   }
 
   public init(arrayLiteral elements: ExpressibleAsDeclNameArgument...) {
@@ -272,6 +339,12 @@ public struct DeclNameArgumentList: ExpressibleByArrayLiteral, SyntaxBuildable, 
   }
 }
 
+extension Array: ExpressibleAsDeclNameArgumentList where Element == ExpressibleAsDeclNameArgument {
+  public func createDeclNameArgumentList() -> DeclNameArgumentList {
+    return DeclNameArgumentList(self)
+  }
+}
+
 /// A list of expressions connected by operators. This list is containedby a `SequenceExprSyntax`.
 public struct ExprList: ExpressibleByArrayLiteral, SyntaxBuildable, ExpressibleAsExprList {
   let elements: [ExprBuildable]
@@ -281,6 +354,13 @@ public struct ExprList: ExpressibleByArrayLiteral, SyntaxBuildable, ExpressibleA
   ///   - elements: A list of `ExpressibleAsExprBuildable`
   public init(_ elements: [ExpressibleAsExprBuildable]) {
     self.elements = elements.map { $0.createExprBuildable() }
+  }
+  
+  /// Creates a new ExprList by flattening the elements in `lists`
+  public init(combining lists: [ExpressibleAsExprList]) {
+    self.elements = lists.flatMap {
+      $0.createExprList().elements
+    }
   }
 
   public init(arrayLiteral elements: ExpressibleAsExprBuildable...) {
@@ -315,6 +395,7 @@ public struct ExprList: ExpressibleByArrayLiteral, SyntaxBuildable, ExpressibleA
   }
 }
 
+
 /// `ClosureCaptureItemList` represents a collection of `ClosureCaptureItem`s.
 public struct ClosureCaptureItemList: ExpressibleByArrayLiteral, SyntaxBuildable, ExpressibleAsClosureCaptureItemList {
   let elements: [ClosureCaptureItem]
@@ -324,6 +405,13 @@ public struct ClosureCaptureItemList: ExpressibleByArrayLiteral, SyntaxBuildable
   ///   - elements: A list of `ExpressibleAsClosureCaptureItem`
   public init(_ elements: [ExpressibleAsClosureCaptureItem]) {
     self.elements = elements.map { $0.createClosureCaptureItem() }
+  }
+  
+  /// Creates a new ClosureCaptureItemList by flattening the elements in `lists`
+  public init(combining lists: [ExpressibleAsClosureCaptureItemList]) {
+    self.elements = lists.flatMap {
+      $0.createClosureCaptureItemList().elements
+    }
   }
 
   public init(arrayLiteral elements: ExpressibleAsClosureCaptureItem...) {
@@ -358,6 +446,12 @@ public struct ClosureCaptureItemList: ExpressibleByArrayLiteral, SyntaxBuildable
   }
 }
 
+extension Array: ExpressibleAsClosureCaptureItemList where Element == ExpressibleAsClosureCaptureItem {
+  public func createClosureCaptureItemList() -> ClosureCaptureItemList {
+    return ClosureCaptureItemList(self)
+  }
+}
+
 /// `ClosureParamList` represents a collection of `ClosureParam`s.
 public struct ClosureParamList: ExpressibleByArrayLiteral, SyntaxBuildable, ExpressibleAsClosureParamList {
   let elements: [ClosureParam]
@@ -367,6 +461,13 @@ public struct ClosureParamList: ExpressibleByArrayLiteral, SyntaxBuildable, Expr
   ///   - elements: A list of `ExpressibleAsClosureParam`
   public init(_ elements: [ExpressibleAsClosureParam]) {
     self.elements = elements.map { $0.createClosureParam() }
+  }
+  
+  /// Creates a new ClosureParamList by flattening the elements in `lists`
+  public init(combining lists: [ExpressibleAsClosureParamList]) {
+    self.elements = lists.flatMap {
+      $0.createClosureParamList().elements
+    }
   }
 
   public init(arrayLiteral elements: ExpressibleAsClosureParam...) {
@@ -401,6 +502,12 @@ public struct ClosureParamList: ExpressibleByArrayLiteral, SyntaxBuildable, Expr
   }
 }
 
+extension Array: ExpressibleAsClosureParamList where Element == ExpressibleAsClosureParam {
+  public func createClosureParamList() -> ClosureParamList {
+    return ClosureParamList(self)
+  }
+}
+
 /// `MultipleTrailingClosureElementList` represents a collection of `MultipleTrailingClosureElement`s.
 public struct MultipleTrailingClosureElementList: ExpressibleByArrayLiteral, SyntaxBuildable, ExpressibleAsMultipleTrailingClosureElementList {
   let elements: [MultipleTrailingClosureElement]
@@ -410,6 +517,13 @@ public struct MultipleTrailingClosureElementList: ExpressibleByArrayLiteral, Syn
   ///   - elements: A list of `ExpressibleAsMultipleTrailingClosureElement`
   public init(_ elements: [ExpressibleAsMultipleTrailingClosureElement]) {
     self.elements = elements.map { $0.createMultipleTrailingClosureElement() }
+  }
+  
+  /// Creates a new MultipleTrailingClosureElementList by flattening the elements in `lists`
+  public init(combining lists: [ExpressibleAsMultipleTrailingClosureElementList]) {
+    self.elements = lists.flatMap {
+      $0.createMultipleTrailingClosureElementList().elements
+    }
   }
 
   public init(arrayLiteral elements: ExpressibleAsMultipleTrailingClosureElement...) {
@@ -444,6 +558,12 @@ public struct MultipleTrailingClosureElementList: ExpressibleByArrayLiteral, Syn
   }
 }
 
+extension Array: ExpressibleAsMultipleTrailingClosureElementList where Element == ExpressibleAsMultipleTrailingClosureElement {
+  public func createMultipleTrailingClosureElementList() -> MultipleTrailingClosureElementList {
+    return MultipleTrailingClosureElementList(self)
+  }
+}
+
 /// `ObjcName` represents a collection of `ObjcNamePiece`s.
 public struct ObjcName: ExpressibleByArrayLiteral, SyntaxBuildable, ExpressibleAsObjcName {
   let elements: [ObjcNamePiece]
@@ -453,6 +573,13 @@ public struct ObjcName: ExpressibleByArrayLiteral, SyntaxBuildable, ExpressibleA
   ///   - elements: A list of `ExpressibleAsObjcNamePiece`
   public init(_ elements: [ExpressibleAsObjcNamePiece]) {
     self.elements = elements.map { $0.createObjcNamePiece() }
+  }
+  
+  /// Creates a new ObjcName by flattening the elements in `lists`
+  public init(combining lists: [ExpressibleAsObjcName]) {
+    self.elements = lists.flatMap {
+      $0.createObjcName().elements
+    }
   }
 
   public init(arrayLiteral elements: ExpressibleAsObjcNamePiece...) {
@@ -487,6 +614,12 @@ public struct ObjcName: ExpressibleByArrayLiteral, SyntaxBuildable, ExpressibleA
   }
 }
 
+extension Array: ExpressibleAsObjcName where Element == ExpressibleAsObjcNamePiece {
+  public func createObjcName() -> ObjcName {
+    return ObjcName(self)
+  }
+}
+
 /// `FunctionParameterList` represents a collection of `FunctionParameter`s.
 public struct FunctionParameterList: ExpressibleByArrayLiteral, SyntaxBuildable, ExpressibleAsFunctionParameterList {
   let elements: [FunctionParameter]
@@ -496,6 +629,13 @@ public struct FunctionParameterList: ExpressibleByArrayLiteral, SyntaxBuildable,
   ///   - elements: A list of `ExpressibleAsFunctionParameter`
   public init(_ elements: [ExpressibleAsFunctionParameter]) {
     self.elements = elements.map { $0.createFunctionParameter() }
+  }
+  
+  /// Creates a new FunctionParameterList by flattening the elements in `lists`
+  public init(combining lists: [ExpressibleAsFunctionParameterList]) {
+    self.elements = lists.flatMap {
+      $0.createFunctionParameterList().elements
+    }
   }
 
   public init(arrayLiteral elements: ExpressibleAsFunctionParameter...) {
@@ -530,6 +670,12 @@ public struct FunctionParameterList: ExpressibleByArrayLiteral, SyntaxBuildable,
   }
 }
 
+extension Array: ExpressibleAsFunctionParameterList where Element == ExpressibleAsFunctionParameter {
+  public func createFunctionParameterList() -> FunctionParameterList {
+    return FunctionParameterList(self)
+  }
+}
+
 /// `IfConfigClauseList` represents a collection of `IfConfigClause`s.
 public struct IfConfigClauseList: ExpressibleByArrayLiteral, SyntaxBuildable, ExpressibleAsIfConfigClauseList {
   let elements: [IfConfigClause]
@@ -539,6 +685,13 @@ public struct IfConfigClauseList: ExpressibleByArrayLiteral, SyntaxBuildable, Ex
   ///   - elements: A list of `ExpressibleAsIfConfigClause`
   public init(_ elements: [ExpressibleAsIfConfigClause]) {
     self.elements = elements.map { $0.createIfConfigClause() }
+  }
+  
+  /// Creates a new IfConfigClauseList by flattening the elements in `lists`
+  public init(combining lists: [ExpressibleAsIfConfigClauseList]) {
+    self.elements = lists.flatMap {
+      $0.createIfConfigClauseList().elements
+    }
   }
 
   public init(arrayLiteral elements: ExpressibleAsIfConfigClause...) {
@@ -573,6 +726,12 @@ public struct IfConfigClauseList: ExpressibleByArrayLiteral, SyntaxBuildable, Ex
   }
 }
 
+extension Array: ExpressibleAsIfConfigClauseList where Element == ExpressibleAsIfConfigClause {
+  public func createIfConfigClauseList() -> IfConfigClauseList {
+    return IfConfigClauseList(self)
+  }
+}
+
 /// `InheritedTypeList` represents a collection of `InheritedType`s.
 public struct InheritedTypeList: ExpressibleByArrayLiteral, SyntaxBuildable, ExpressibleAsInheritedTypeList {
   let elements: [InheritedType]
@@ -582,6 +741,13 @@ public struct InheritedTypeList: ExpressibleByArrayLiteral, SyntaxBuildable, Exp
   ///   - elements: A list of `ExpressibleAsInheritedType`
   public init(_ elements: [ExpressibleAsInheritedType]) {
     self.elements = elements.map { $0.createInheritedType() }
+  }
+  
+  /// Creates a new InheritedTypeList by flattening the elements in `lists`
+  public init(combining lists: [ExpressibleAsInheritedTypeList]) {
+    self.elements = lists.flatMap {
+      $0.createInheritedTypeList().elements
+    }
   }
 
   public init(arrayLiteral elements: ExpressibleAsInheritedType...) {
@@ -616,6 +782,12 @@ public struct InheritedTypeList: ExpressibleByArrayLiteral, SyntaxBuildable, Exp
   }
 }
 
+extension Array: ExpressibleAsInheritedTypeList where Element == ExpressibleAsInheritedType {
+  public func createInheritedTypeList() -> InheritedTypeList {
+    return InheritedTypeList(self)
+  }
+}
+
 /// `MemberDeclList` represents a collection of `MemberDeclListItem`s.
 public struct MemberDeclList: ExpressibleByArrayLiteral, SyntaxBuildable, ExpressibleAsMemberDeclList {
   let elements: [MemberDeclListItem]
@@ -626,6 +798,13 @@ public struct MemberDeclList: ExpressibleByArrayLiteral, SyntaxBuildable, Expres
   public init(_ elements: [ExpressibleAsMemberDeclListItem]) {
     self.elements = elements.map { $0.createMemberDeclListItem() }
   }
+  
+  /// Creates a new MemberDeclList by flattening the elements in `lists`
+  public init(combining lists: [ExpressibleAsMemberDeclList]) {
+    self.elements = lists.flatMap {
+      $0.createMemberDeclList().elements
+    }
+  }
 
   public init(arrayLiteral elements: ExpressibleAsMemberDeclListItem...) {
     self.init(elements)
@@ -633,7 +812,7 @@ public struct MemberDeclList: ExpressibleByArrayLiteral, SyntaxBuildable, Expres
 
   public func buildMemberDeclList(format: Format, leadingTrivia: Trivia? = nil) -> MemberDeclListSyntax {
     let result = SyntaxFactory.makeMemberDeclList(elements.map {
-      $0.buildMemberDeclListItem(format: format, leadingTrivia: Trivia.newlines(1) + format._makeIndent())
+      $0.buildMemberDeclListItem(format: format, leadingTrivia: Trivia.newline + format._makeIndent())
     })
     if let leadingTrivia = leadingTrivia {
       return result.withLeadingTrivia(leadingTrivia + (result.leadingTrivia ?? []))
@@ -659,6 +838,7 @@ public struct MemberDeclList: ExpressibleByArrayLiteral, SyntaxBuildable, Expres
   }
 }
 
+
 /// `ModifierList` represents a collection of `DeclModifier`s.
 public struct ModifierList: ExpressibleByArrayLiteral, SyntaxBuildable, ExpressibleAsModifierList {
   let elements: [DeclModifier]
@@ -668,6 +848,13 @@ public struct ModifierList: ExpressibleByArrayLiteral, SyntaxBuildable, Expressi
   ///   - elements: A list of `ExpressibleAsDeclModifier`
   public init(_ elements: [ExpressibleAsDeclModifier]) {
     self.elements = elements.map { $0.createDeclModifier() }
+  }
+  
+  /// Creates a new ModifierList by flattening the elements in `lists`
+  public init(combining lists: [ExpressibleAsModifierList]) {
+    self.elements = lists.flatMap {
+      $0.createModifierList().elements
+    }
   }
 
   public init(arrayLiteral elements: ExpressibleAsDeclModifier...) {
@@ -702,6 +889,12 @@ public struct ModifierList: ExpressibleByArrayLiteral, SyntaxBuildable, Expressi
   }
 }
 
+extension Array: ExpressibleAsModifierList where Element == ExpressibleAsDeclModifier {
+  public func createModifierList() -> ModifierList {
+    return ModifierList(self)
+  }
+}
+
 /// `AccessPath` represents a collection of `AccessPathComponent`s.
 public struct AccessPath: ExpressibleByArrayLiteral, SyntaxBuildable, ExpressibleAsAccessPath {
   let elements: [AccessPathComponent]
@@ -711,6 +904,13 @@ public struct AccessPath: ExpressibleByArrayLiteral, SyntaxBuildable, Expressibl
   ///   - elements: A list of `ExpressibleAsAccessPathComponent`
   public init(_ elements: [ExpressibleAsAccessPathComponent]) {
     self.elements = elements.map { $0.createAccessPathComponent() }
+  }
+  
+  /// Creates a new AccessPath by flattening the elements in `lists`
+  public init(combining lists: [ExpressibleAsAccessPath]) {
+    self.elements = lists.flatMap {
+      $0.createAccessPath().elements
+    }
   }
 
   public init(arrayLiteral elements: ExpressibleAsAccessPathComponent...) {
@@ -745,6 +945,12 @@ public struct AccessPath: ExpressibleByArrayLiteral, SyntaxBuildable, Expressibl
   }
 }
 
+extension Array: ExpressibleAsAccessPath where Element == ExpressibleAsAccessPathComponent {
+  public func createAccessPath() -> AccessPath {
+    return AccessPath(self)
+  }
+}
+
 /// `AccessorList` represents a collection of `AccessorDecl`s.
 public struct AccessorList: ExpressibleByArrayLiteral, SyntaxBuildable, ExpressibleAsAccessorList {
   let elements: [AccessorDecl]
@@ -754,6 +960,13 @@ public struct AccessorList: ExpressibleByArrayLiteral, SyntaxBuildable, Expressi
   ///   - elements: A list of `ExpressibleAsAccessorDecl`
   public init(_ elements: [ExpressibleAsAccessorDecl]) {
     self.elements = elements.map { $0.createAccessorDecl() }
+  }
+  
+  /// Creates a new AccessorList by flattening the elements in `lists`
+  public init(combining lists: [ExpressibleAsAccessorList]) {
+    self.elements = lists.flatMap {
+      $0.createAccessorList().elements
+    }
   }
 
   public init(arrayLiteral elements: ExpressibleAsAccessorDecl...) {
@@ -788,6 +1001,7 @@ public struct AccessorList: ExpressibleByArrayLiteral, SyntaxBuildable, Expressi
   }
 }
 
+
 /// `PatternBindingList` represents a collection of `PatternBinding`s.
 public struct PatternBindingList: ExpressibleByArrayLiteral, SyntaxBuildable, ExpressibleAsPatternBindingList {
   let elements: [PatternBinding]
@@ -797,6 +1011,13 @@ public struct PatternBindingList: ExpressibleByArrayLiteral, SyntaxBuildable, Ex
   ///   - elements: A list of `ExpressibleAsPatternBinding`
   public init(_ elements: [ExpressibleAsPatternBinding]) {
     self.elements = elements.map { $0.createPatternBinding() }
+  }
+  
+  /// Creates a new PatternBindingList by flattening the elements in `lists`
+  public init(combining lists: [ExpressibleAsPatternBindingList]) {
+    self.elements = lists.flatMap {
+      $0.createPatternBindingList().elements
+    }
   }
 
   public init(arrayLiteral elements: ExpressibleAsPatternBinding...) {
@@ -831,6 +1052,12 @@ public struct PatternBindingList: ExpressibleByArrayLiteral, SyntaxBuildable, Ex
   }
 }
 
+extension Array: ExpressibleAsPatternBindingList where Element == ExpressibleAsPatternBinding {
+  public func createPatternBindingList() -> PatternBindingList {
+    return PatternBindingList(self)
+  }
+}
+
 /// A collection of 0 or more `EnumCaseElement`s.
 public struct EnumCaseElementList: ExpressibleByArrayLiteral, SyntaxBuildable, ExpressibleAsEnumCaseElementList {
   let elements: [EnumCaseElement]
@@ -840,6 +1067,13 @@ public struct EnumCaseElementList: ExpressibleByArrayLiteral, SyntaxBuildable, E
   ///   - elements: A list of `ExpressibleAsEnumCaseElement`
   public init(_ elements: [ExpressibleAsEnumCaseElement]) {
     self.elements = elements.map { $0.createEnumCaseElement() }
+  }
+  
+  /// Creates a new EnumCaseElementList by flattening the elements in `lists`
+  public init(combining lists: [ExpressibleAsEnumCaseElementList]) {
+    self.elements = lists.flatMap {
+      $0.createEnumCaseElementList().elements
+    }
   }
 
   public init(arrayLiteral elements: ExpressibleAsEnumCaseElement...) {
@@ -874,6 +1108,12 @@ public struct EnumCaseElementList: ExpressibleByArrayLiteral, SyntaxBuildable, E
   }
 }
 
+extension Array: ExpressibleAsEnumCaseElementList where Element == ExpressibleAsEnumCaseElement {
+  public func createEnumCaseElementList() -> EnumCaseElementList {
+    return EnumCaseElementList(self)
+  }
+}
+
 /// `IdentifierList` represents a collection of `TokenSyntax`s.
 public struct IdentifierList: ExpressibleByArrayLiteral, SyntaxBuildable, ExpressibleAsIdentifierList {
   let elements: [TokenSyntax]
@@ -883,6 +1123,13 @@ public struct IdentifierList: ExpressibleByArrayLiteral, SyntaxBuildable, Expres
   ///   - elements: A list of `TokenSyntax`
   public init(_ elements: [TokenSyntax]) {
     self.elements = elements
+  }
+  
+  /// Creates a new IdentifierList by flattening the elements in `lists`
+  public init(combining lists: [ExpressibleAsIdentifierList]) {
+    self.elements = lists.flatMap {
+      $0.createIdentifierList().elements
+    }
   }
 
   public init(arrayLiteral elements: TokenSyntax...) {
@@ -915,6 +1162,12 @@ public struct IdentifierList: ExpressibleByArrayLiteral, SyntaxBuildable, Expres
   }
 }
 
+extension Array: ExpressibleAsIdentifierList where Element == TokenSyntax {
+  public func createIdentifierList() -> IdentifierList {
+    return IdentifierList(self)
+  }
+}
+
 /// `PrecedenceGroupAttributeList` represents a collection of `SyntaxBuildable`s.
 public struct PrecedenceGroupAttributeList: ExpressibleByArrayLiteral, SyntaxBuildable, ExpressibleAsPrecedenceGroupAttributeList {
   let elements: [SyntaxBuildable]
@@ -924,6 +1177,13 @@ public struct PrecedenceGroupAttributeList: ExpressibleByArrayLiteral, SyntaxBui
   ///   - elements: A list of `ExpressibleAsSyntaxBuildable`
   public init(_ elements: [ExpressibleAsSyntaxBuildable]) {
     self.elements = elements.map { $0.createSyntaxBuildable() }
+  }
+  
+  /// Creates a new PrecedenceGroupAttributeList by flattening the elements in `lists`
+  public init(combining lists: [ExpressibleAsPrecedenceGroupAttributeList]) {
+    self.elements = lists.flatMap {
+      $0.createPrecedenceGroupAttributeList().elements
+    }
   }
 
   public init(arrayLiteral elements: ExpressibleAsSyntaxBuildable...) {
@@ -958,6 +1218,12 @@ public struct PrecedenceGroupAttributeList: ExpressibleByArrayLiteral, SyntaxBui
   }
 }
 
+extension Array: ExpressibleAsPrecedenceGroupAttributeList where Element == ExpressibleAsSyntaxBuildable {
+  public func createPrecedenceGroupAttributeList() -> PrecedenceGroupAttributeList {
+    return PrecedenceGroupAttributeList(self)
+  }
+}
+
 /// `PrecedenceGroupNameList` represents a collection of `PrecedenceGroupNameElement`s.
 public struct PrecedenceGroupNameList: ExpressibleByArrayLiteral, SyntaxBuildable, ExpressibleAsPrecedenceGroupNameList {
   let elements: [PrecedenceGroupNameElement]
@@ -967,6 +1233,13 @@ public struct PrecedenceGroupNameList: ExpressibleByArrayLiteral, SyntaxBuildabl
   ///   - elements: A list of `ExpressibleAsPrecedenceGroupNameElement`
   public init(_ elements: [ExpressibleAsPrecedenceGroupNameElement]) {
     self.elements = elements.map { $0.createPrecedenceGroupNameElement() }
+  }
+  
+  /// Creates a new PrecedenceGroupNameList by flattening the elements in `lists`
+  public init(combining lists: [ExpressibleAsPrecedenceGroupNameList]) {
+    self.elements = lists.flatMap {
+      $0.createPrecedenceGroupNameList().elements
+    }
   }
 
   public init(arrayLiteral elements: ExpressibleAsPrecedenceGroupNameElement...) {
@@ -1001,6 +1274,12 @@ public struct PrecedenceGroupNameList: ExpressibleByArrayLiteral, SyntaxBuildabl
   }
 }
 
+extension Array: ExpressibleAsPrecedenceGroupNameList where Element == ExpressibleAsPrecedenceGroupNameElement {
+  public func createPrecedenceGroupNameList() -> PrecedenceGroupNameList {
+    return PrecedenceGroupNameList(self)
+  }
+}
+
 /// `TokenList` represents a collection of `TokenSyntax`s.
 public struct TokenList: ExpressibleByArrayLiteral, SyntaxBuildable, ExpressibleAsTokenList {
   let elements: [TokenSyntax]
@@ -1010,6 +1289,13 @@ public struct TokenList: ExpressibleByArrayLiteral, SyntaxBuildable, Expressible
   ///   - elements: A list of `TokenSyntax`
   public init(_ elements: [TokenSyntax]) {
     self.elements = elements
+  }
+  
+  /// Creates a new TokenList by flattening the elements in `lists`
+  public init(combining lists: [ExpressibleAsTokenList]) {
+    self.elements = lists.flatMap {
+      $0.createTokenList().elements
+    }
   }
 
   public init(arrayLiteral elements: TokenSyntax...) {
@@ -1042,6 +1328,12 @@ public struct TokenList: ExpressibleByArrayLiteral, SyntaxBuildable, Expressible
   }
 }
 
+extension Array: ExpressibleAsTokenList where Element == TokenSyntax {
+  public func createTokenList() -> TokenList {
+    return TokenList(self)
+  }
+}
+
 /// `NonEmptyTokenList` represents a collection of `TokenSyntax`s.
 public struct NonEmptyTokenList: ExpressibleByArrayLiteral, SyntaxBuildable, ExpressibleAsNonEmptyTokenList {
   let elements: [TokenSyntax]
@@ -1051,6 +1343,13 @@ public struct NonEmptyTokenList: ExpressibleByArrayLiteral, SyntaxBuildable, Exp
   ///   - elements: A list of `TokenSyntax`
   public init(_ elements: [TokenSyntax]) {
     self.elements = elements
+  }
+  
+  /// Creates a new NonEmptyTokenList by flattening the elements in `lists`
+  public init(combining lists: [ExpressibleAsNonEmptyTokenList]) {
+    self.elements = lists.flatMap {
+      $0.createNonEmptyTokenList().elements
+    }
   }
 
   public init(arrayLiteral elements: TokenSyntax...) {
@@ -1083,6 +1382,12 @@ public struct NonEmptyTokenList: ExpressibleByArrayLiteral, SyntaxBuildable, Exp
   }
 }
 
+extension Array: ExpressibleAsNonEmptyTokenList where Element == TokenSyntax {
+  public func createNonEmptyTokenList() -> NonEmptyTokenList {
+    return NonEmptyTokenList(self)
+  }
+}
+
 /// `AttributeList` represents a collection of `SyntaxBuildable`s.
 public struct AttributeList: ExpressibleByArrayLiteral, SyntaxBuildable, ExpressibleAsAttributeList {
   let elements: [SyntaxBuildable]
@@ -1092,6 +1397,13 @@ public struct AttributeList: ExpressibleByArrayLiteral, SyntaxBuildable, Express
   ///   - elements: A list of `ExpressibleAsSyntaxBuildable`
   public init(_ elements: [ExpressibleAsSyntaxBuildable]) {
     self.elements = elements.map { $0.createSyntaxBuildable() }
+  }
+  
+  /// Creates a new AttributeList by flattening the elements in `lists`
+  public init(combining lists: [ExpressibleAsAttributeList]) {
+    self.elements = lists.flatMap {
+      $0.createAttributeList().elements
+    }
   }
 
   public init(arrayLiteral elements: ExpressibleAsSyntaxBuildable...) {
@@ -1126,6 +1438,12 @@ public struct AttributeList: ExpressibleByArrayLiteral, SyntaxBuildable, Express
   }
 }
 
+extension Array: ExpressibleAsAttributeList where Element == ExpressibleAsSyntaxBuildable {
+  public func createAttributeList() -> AttributeList {
+    return AttributeList(self)
+  }
+}
+
 /// A collection of arguments for the `@_specialize` attribute
 public struct SpecializeAttributeSpecList: ExpressibleByArrayLiteral, SyntaxBuildable, ExpressibleAsSpecializeAttributeSpecList {
   let elements: [SyntaxBuildable]
@@ -1135,6 +1453,13 @@ public struct SpecializeAttributeSpecList: ExpressibleByArrayLiteral, SyntaxBuil
   ///   - elements: A list of `ExpressibleAsSyntaxBuildable`
   public init(_ elements: [ExpressibleAsSyntaxBuildable]) {
     self.elements = elements.map { $0.createSyntaxBuildable() }
+  }
+  
+  /// Creates a new SpecializeAttributeSpecList by flattening the elements in `lists`
+  public init(combining lists: [ExpressibleAsSpecializeAttributeSpecList]) {
+    self.elements = lists.flatMap {
+      $0.createSpecializeAttributeSpecList().elements
+    }
   }
 
   public init(arrayLiteral elements: ExpressibleAsSyntaxBuildable...) {
@@ -1169,6 +1494,12 @@ public struct SpecializeAttributeSpecList: ExpressibleByArrayLiteral, SyntaxBuil
   }
 }
 
+extension Array: ExpressibleAsSpecializeAttributeSpecList where Element == ExpressibleAsSyntaxBuildable {
+  public func createSpecializeAttributeSpecList() -> SpecializeAttributeSpecList {
+    return SpecializeAttributeSpecList(self)
+  }
+}
+
 /// `ObjCSelector` represents a collection of `ObjCSelectorPiece`s.
 public struct ObjCSelector: ExpressibleByArrayLiteral, SyntaxBuildable, ExpressibleAsObjCSelector {
   let elements: [ObjCSelectorPiece]
@@ -1178,6 +1509,13 @@ public struct ObjCSelector: ExpressibleByArrayLiteral, SyntaxBuildable, Expressi
   ///   - elements: A list of `ExpressibleAsObjCSelectorPiece`
   public init(_ elements: [ExpressibleAsObjCSelectorPiece]) {
     self.elements = elements.map { $0.createObjCSelectorPiece() }
+  }
+  
+  /// Creates a new ObjCSelector by flattening the elements in `lists`
+  public init(combining lists: [ExpressibleAsObjCSelector]) {
+    self.elements = lists.flatMap {
+      $0.createObjCSelector().elements
+    }
   }
 
   public init(arrayLiteral elements: ExpressibleAsObjCSelectorPiece...) {
@@ -1212,6 +1550,12 @@ public struct ObjCSelector: ExpressibleByArrayLiteral, SyntaxBuildable, Expressi
   }
 }
 
+extension Array: ExpressibleAsObjCSelector where Element == ExpressibleAsObjCSelectorPiece {
+  public func createObjCSelector() -> ObjCSelector {
+    return ObjCSelector(self)
+  }
+}
+
 /// `DifferentiabilityParamList` represents a collection of `DifferentiabilityParam`s.
 public struct DifferentiabilityParamList: ExpressibleByArrayLiteral, SyntaxBuildable, ExpressibleAsDifferentiabilityParamList {
   let elements: [DifferentiabilityParam]
@@ -1221,6 +1565,13 @@ public struct DifferentiabilityParamList: ExpressibleByArrayLiteral, SyntaxBuild
   ///   - elements: A list of `ExpressibleAsDifferentiabilityParam`
   public init(_ elements: [ExpressibleAsDifferentiabilityParam]) {
     self.elements = elements.map { $0.createDifferentiabilityParam() }
+  }
+  
+  /// Creates a new DifferentiabilityParamList by flattening the elements in `lists`
+  public init(combining lists: [ExpressibleAsDifferentiabilityParamList]) {
+    self.elements = lists.flatMap {
+      $0.createDifferentiabilityParamList().elements
+    }
   }
 
   public init(arrayLiteral elements: ExpressibleAsDifferentiabilityParam...) {
@@ -1255,6 +1606,68 @@ public struct DifferentiabilityParamList: ExpressibleByArrayLiteral, SyntaxBuild
   }
 }
 
+extension Array: ExpressibleAsDifferentiabilityParamList where Element == ExpressibleAsDifferentiabilityParam {
+  public func createDifferentiabilityParamList() -> DifferentiabilityParamList {
+    return DifferentiabilityParamList(self)
+  }
+}
+
+/// `BackDeployVersionList` represents a collection of `BackDeployVersionArgument`s.
+public struct BackDeployVersionList: ExpressibleByArrayLiteral, SyntaxBuildable, ExpressibleAsBackDeployVersionList {
+  let elements: [BackDeployVersionArgument]
+
+  /// Creates a `BackDeployVersionList` with the provided list of elements.
+  /// - Parameters:
+  ///   - elements: A list of `ExpressibleAsBackDeployVersionArgument`
+  public init(_ elements: [ExpressibleAsBackDeployVersionArgument]) {
+    self.elements = elements.map { $0.createBackDeployVersionArgument() }
+  }
+  
+  /// Creates a new BackDeployVersionList by flattening the elements in `lists`
+  public init(combining lists: [ExpressibleAsBackDeployVersionList]) {
+    self.elements = lists.flatMap {
+      $0.createBackDeployVersionList().elements
+    }
+  }
+
+  public init(arrayLiteral elements: ExpressibleAsBackDeployVersionArgument...) {
+    self.init(elements)
+  }
+
+  public func buildBackDeployVersionList(format: Format, leadingTrivia: Trivia? = nil) -> BackDeployVersionListSyntax {
+    let result = SyntaxFactory.makeBackDeployVersionList(elements.map {
+      $0.buildBackDeployVersionArgument(format: format, leadingTrivia: nil)
+    })
+    if let leadingTrivia = leadingTrivia {
+      return result.withLeadingTrivia(leadingTrivia + (result.leadingTrivia ?? []))
+    } else {
+      return result
+    }
+  }
+
+  public func buildSyntax(format: Format, leadingTrivia: Trivia? = nil) -> Syntax {
+    return Syntax(buildBackDeployVersionList(format: format, leadingTrivia: leadingTrivia))
+  }
+
+  /// Conformance to `ExpressibleAsBackDeployVersionList`.
+  public func createBackDeployVersionList() -> BackDeployVersionList {
+    return self
+  }
+
+  /// `BackDeployVersionList` might conform to `SyntaxBuildable` via different `ExpressibleAs*` paths.
+  /// Thus, there are multiple default implementations for `createSyntaxBuildable`, some of which perform conversions through `ExpressibleAs*` protocols.
+  /// To resolve the ambiguity, provide a fixed implementation that doesn't perform any conversions.
+  public func createSyntaxBuildable() -> SyntaxBuildable {
+    return self
+  }
+}
+
+extension Array: ExpressibleAsBackDeployVersionList where Element == ExpressibleAsBackDeployVersionArgument {
+  public func createBackDeployVersionList() -> BackDeployVersionList {
+    return BackDeployVersionList(self)
+  }
+}
+
 /// `SwitchCaseList` represents a collection of `SyntaxBuildable`s.
 public struct SwitchCaseList: ExpressibleByArrayLiteral, SyntaxBuildable, ExpressibleAsSwitchCaseList {
   let elements: [SyntaxBuildable]
@@ -1265,6 +1678,13 @@ public struct SwitchCaseList: ExpressibleByArrayLiteral, SyntaxBuildable, Expres
   public init(_ elements: [ExpressibleAsSyntaxBuildable]) {
     self.elements = elements.map { $0.createSyntaxBuildable() }
   }
+  
+  /// Creates a new SwitchCaseList by flattening the elements in `lists`
+  public init(combining lists: [ExpressibleAsSwitchCaseList]) {
+    self.elements = lists.flatMap {
+      $0.createSwitchCaseList().elements
+    }
+  }
 
   public init(arrayLiteral elements: ExpressibleAsSyntaxBuildable...) {
     self.init(elements)
@@ -1272,7 +1692,7 @@ public struct SwitchCaseList: ExpressibleByArrayLiteral, SyntaxBuildable, Expres
 
   public func buildSwitchCaseList(format: Format, leadingTrivia: Trivia? = nil) -> SwitchCaseListSyntax {
     let result = SyntaxFactory.makeSwitchCaseList(elements.map {
-      $0.buildSyntax(format: format, leadingTrivia: nil)
+      $0.buildSyntax(format: format, leadingTrivia: Trivia.newline + format._makeIndent())
     })
     if let leadingTrivia = leadingTrivia {
       return result.withLeadingTrivia(leadingTrivia + (result.leadingTrivia ?? []))
@@ -1298,6 +1718,12 @@ public struct SwitchCaseList: ExpressibleByArrayLiteral, SyntaxBuildable, Expres
   }
 }
 
+extension Array: ExpressibleAsSwitchCaseList where Element == ExpressibleAsSyntaxBuildable {
+  public func createSwitchCaseList() -> SwitchCaseList {
+    return SwitchCaseList(self)
+  }
+}
+
 /// `CatchClauseList` represents a collection of `CatchClause`s.
 public struct CatchClauseList: ExpressibleByArrayLiteral, SyntaxBuildable, ExpressibleAsCatchClauseList {
   let elements: [CatchClause]
@@ -1307,6 +1733,13 @@ public struct CatchClauseList: ExpressibleByArrayLiteral, SyntaxBuildable, Expre
   ///   - elements: A list of `ExpressibleAsCatchClause`
   public init(_ elements: [ExpressibleAsCatchClause]) {
     self.elements = elements.map { $0.createCatchClause() }
+  }
+  
+  /// Creates a new CatchClauseList by flattening the elements in `lists`
+  public init(combining lists: [ExpressibleAsCatchClauseList]) {
+    self.elements = lists.flatMap {
+      $0.createCatchClauseList().elements
+    }
   }
 
   public init(arrayLiteral elements: ExpressibleAsCatchClause...) {
@@ -1341,6 +1774,12 @@ public struct CatchClauseList: ExpressibleByArrayLiteral, SyntaxBuildable, Expre
   }
 }
 
+extension Array: ExpressibleAsCatchClauseList where Element == ExpressibleAsCatchClause {
+  public func createCatchClauseList() -> CatchClauseList {
+    return CatchClauseList(self)
+  }
+}
+
 /// `CaseItemList` represents a collection of `CaseItem`s.
 public struct CaseItemList: ExpressibleByArrayLiteral, SyntaxBuildable, ExpressibleAsCaseItemList {
   let elements: [CaseItem]
@@ -1350,6 +1789,13 @@ public struct CaseItemList: ExpressibleByArrayLiteral, SyntaxBuildable, Expressi
   ///   - elements: A list of `ExpressibleAsCaseItem`
   public init(_ elements: [ExpressibleAsCaseItem]) {
     self.elements = elements.map { $0.createCaseItem() }
+  }
+  
+  /// Creates a new CaseItemList by flattening the elements in `lists`
+  public init(combining lists: [ExpressibleAsCaseItemList]) {
+    self.elements = lists.flatMap {
+      $0.createCaseItemList().elements
+    }
   }
 
   public init(arrayLiteral elements: ExpressibleAsCaseItem...) {
@@ -1384,6 +1830,12 @@ public struct CaseItemList: ExpressibleByArrayLiteral, SyntaxBuildable, Expressi
   }
 }
 
+extension Array: ExpressibleAsCaseItemList where Element == ExpressibleAsCaseItem {
+  public func createCaseItemList() -> CaseItemList {
+    return CaseItemList(self)
+  }
+}
+
 /// `CatchItemList` represents a collection of `CatchItem`s.
 public struct CatchItemList: ExpressibleByArrayLiteral, SyntaxBuildable, ExpressibleAsCatchItemList {
   let elements: [CatchItem]
@@ -1393,6 +1845,13 @@ public struct CatchItemList: ExpressibleByArrayLiteral, SyntaxBuildable, Express
   ///   - elements: A list of `ExpressibleAsCatchItem`
   public init(_ elements: [ExpressibleAsCatchItem]) {
     self.elements = elements.map { $0.createCatchItem() }
+  }
+  
+  /// Creates a new CatchItemList by flattening the elements in `lists`
+  public init(combining lists: [ExpressibleAsCatchItemList]) {
+    self.elements = lists.flatMap {
+      $0.createCatchItemList().elements
+    }
   }
 
   public init(arrayLiteral elements: ExpressibleAsCatchItem...) {
@@ -1427,6 +1886,12 @@ public struct CatchItemList: ExpressibleByArrayLiteral, SyntaxBuildable, Express
   }
 }
 
+extension Array: ExpressibleAsCatchItemList where Element == ExpressibleAsCatchItem {
+  public func createCatchItemList() -> CatchItemList {
+    return CatchItemList(self)
+  }
+}
+
 /// `ConditionElementList` represents a collection of `ConditionElement`s.
 public struct ConditionElementList: ExpressibleByArrayLiteral, SyntaxBuildable, ExpressibleAsConditionElementList {
   let elements: [ConditionElement]
@@ -1436,6 +1901,13 @@ public struct ConditionElementList: ExpressibleByArrayLiteral, SyntaxBuildable, 
   ///   - elements: A list of `ExpressibleAsConditionElement`
   public init(_ elements: [ExpressibleAsConditionElement]) {
     self.elements = elements.map { $0.createConditionElement() }
+  }
+  
+  /// Creates a new ConditionElementList by flattening the elements in `lists`
+  public init(combining lists: [ExpressibleAsConditionElementList]) {
+    self.elements = lists.flatMap {
+      $0.createConditionElementList().elements
+    }
   }
 
   public init(arrayLiteral elements: ExpressibleAsConditionElement...) {
@@ -1470,6 +1942,12 @@ public struct ConditionElementList: ExpressibleByArrayLiteral, SyntaxBuildable, 
   }
 }
 
+extension Array: ExpressibleAsConditionElementList where Element == ExpressibleAsConditionElement {
+  public func createConditionElementList() -> ConditionElementList {
+    return ConditionElementList(self)
+  }
+}
+
 /// `GenericRequirementList` represents a collection of `GenericRequirement`s.
 public struct GenericRequirementList: ExpressibleByArrayLiteral, SyntaxBuildable, ExpressibleAsGenericRequirementList {
   let elements: [GenericRequirement]
@@ -1479,6 +1957,13 @@ public struct GenericRequirementList: ExpressibleByArrayLiteral, SyntaxBuildable
   ///   - elements: A list of `ExpressibleAsGenericRequirement`
   public init(_ elements: [ExpressibleAsGenericRequirement]) {
     self.elements = elements.map { $0.createGenericRequirement() }
+  }
+  
+  /// Creates a new GenericRequirementList by flattening the elements in `lists`
+  public init(combining lists: [ExpressibleAsGenericRequirementList]) {
+    self.elements = lists.flatMap {
+      $0.createGenericRequirementList().elements
+    }
   }
 
   public init(arrayLiteral elements: ExpressibleAsGenericRequirement...) {
@@ -1513,6 +1998,12 @@ public struct GenericRequirementList: ExpressibleByArrayLiteral, SyntaxBuildable
   }
 }
 
+extension Array: ExpressibleAsGenericRequirementList where Element == ExpressibleAsGenericRequirement {
+  public func createGenericRequirementList() -> GenericRequirementList {
+    return GenericRequirementList(self)
+  }
+}
+
 /// `GenericParameterList` represents a collection of `GenericParameter`s.
 public struct GenericParameterList: ExpressibleByArrayLiteral, SyntaxBuildable, ExpressibleAsGenericParameterList {
   let elements: [GenericParameter]
@@ -1522,6 +2013,13 @@ public struct GenericParameterList: ExpressibleByArrayLiteral, SyntaxBuildable, 
   ///   - elements: A list of `ExpressibleAsGenericParameter`
   public init(_ elements: [ExpressibleAsGenericParameter]) {
     self.elements = elements.map { $0.createGenericParameter() }
+  }
+  
+  /// Creates a new GenericParameterList by flattening the elements in `lists`
+  public init(combining lists: [ExpressibleAsGenericParameterList]) {
+    self.elements = lists.flatMap {
+      $0.createGenericParameterList().elements
+    }
   }
 
   public init(arrayLiteral elements: ExpressibleAsGenericParameter...) {
@@ -1556,6 +2054,68 @@ public struct GenericParameterList: ExpressibleByArrayLiteral, SyntaxBuildable, 
   }
 }
 
+extension Array: ExpressibleAsGenericParameterList where Element == ExpressibleAsGenericParameter {
+  public func createGenericParameterList() -> GenericParameterList {
+    return GenericParameterList(self)
+  }
+}
+
+/// `PrimaryAssociatedTypeList` represents a collection of `PrimaryAssociatedType`s.
+public struct PrimaryAssociatedTypeList: ExpressibleByArrayLiteral, SyntaxBuildable, ExpressibleAsPrimaryAssociatedTypeList {
+  let elements: [PrimaryAssociatedType]
+
+  /// Creates a `PrimaryAssociatedTypeList` with the provided list of elements.
+  /// - Parameters:
+  ///   - elements: A list of `ExpressibleAsPrimaryAssociatedType`
+  public init(_ elements: [ExpressibleAsPrimaryAssociatedType]) {
+    self.elements = elements.map { $0.createPrimaryAssociatedType() }
+  }
+  
+  /// Creates a new PrimaryAssociatedTypeList by flattening the elements in `lists`
+  public init(combining lists: [ExpressibleAsPrimaryAssociatedTypeList]) {
+    self.elements = lists.flatMap {
+      $0.createPrimaryAssociatedTypeList().elements
+    }
+  }
+
+  public init(arrayLiteral elements: ExpressibleAsPrimaryAssociatedType...) {
+    self.init(elements)
+  }
+
+  public func buildPrimaryAssociatedTypeList(format: Format, leadingTrivia: Trivia? = nil) -> PrimaryAssociatedTypeListSyntax {
+    let result = SyntaxFactory.makePrimaryAssociatedTypeList(elements.map {
+      $0.buildPrimaryAssociatedType(format: format, leadingTrivia: nil)
+    })
+    if let leadingTrivia = leadingTrivia {
+      return result.withLeadingTrivia(leadingTrivia + (result.leadingTrivia ?? []))
+    } else {
+      return result
+    }
+  }
+
+  public func buildSyntax(format: Format, leadingTrivia: Trivia? = nil) -> Syntax {
+    return Syntax(buildPrimaryAssociatedTypeList(format: format, leadingTrivia: leadingTrivia))
+  }
+
+  /// Conformance to `ExpressibleAsPrimaryAssociatedTypeList`.
+  public func createPrimaryAssociatedTypeList() -> PrimaryAssociatedTypeList {
+    return self
+  }
+
+  /// `PrimaryAssociatedTypeList` might conform to `SyntaxBuildable` via different `ExpressibleAs*` paths.
+  /// Thus, there are multiple default implementations for `createSyntaxBuildable`, some of which perform conversions through `ExpressibleAs*` protocols.
+  /// To resolve the ambiguity, provide a fixed implementation that doesn't perform any conversions.
+  public func createSyntaxBuildable() -> SyntaxBuildable {
+    return self
+  }
+}
+
+extension Array: ExpressibleAsPrimaryAssociatedTypeList where Element == ExpressibleAsPrimaryAssociatedType {
+  public func createPrimaryAssociatedTypeList() -> PrimaryAssociatedTypeList {
+    return PrimaryAssociatedTypeList(self)
+  }
+}
+
 /// `CompositionTypeElementList` represents a collection of `CompositionTypeElement`s.
 public struct CompositionTypeElementList: ExpressibleByArrayLiteral, SyntaxBuildable, ExpressibleAsCompositionTypeElementList {
   let elements: [CompositionTypeElement]
@@ -1565,6 +2125,13 @@ public struct CompositionTypeElementList: ExpressibleByArrayLiteral, SyntaxBuild
   ///   - elements: A list of `ExpressibleAsCompositionTypeElement`
   public init(_ elements: [ExpressibleAsCompositionTypeElement]) {
     self.elements = elements.map { $0.createCompositionTypeElement() }
+  }
+  
+  /// Creates a new CompositionTypeElementList by flattening the elements in `lists`
+  public init(combining lists: [ExpressibleAsCompositionTypeElementList]) {
+    self.elements = lists.flatMap {
+      $0.createCompositionTypeElementList().elements
+    }
   }
 
   public init(arrayLiteral elements: ExpressibleAsCompositionTypeElement...) {
@@ -1599,6 +2166,12 @@ public struct CompositionTypeElementList: ExpressibleByArrayLiteral, SyntaxBuild
   }
 }
 
+extension Array: ExpressibleAsCompositionTypeElementList where Element == ExpressibleAsCompositionTypeElement {
+  public func createCompositionTypeElementList() -> CompositionTypeElementList {
+    return CompositionTypeElementList(self)
+  }
+}
+
 /// `TupleTypeElementList` represents a collection of `TupleTypeElement`s.
 public struct TupleTypeElementList: ExpressibleByArrayLiteral, SyntaxBuildable, ExpressibleAsTupleTypeElementList {
   let elements: [TupleTypeElement]
@@ -1608,6 +2181,13 @@ public struct TupleTypeElementList: ExpressibleByArrayLiteral, SyntaxBuildable, 
   ///   - elements: A list of `ExpressibleAsTupleTypeElement`
   public init(_ elements: [ExpressibleAsTupleTypeElement]) {
     self.elements = elements.map { $0.createTupleTypeElement() }
+  }
+  
+  /// Creates a new TupleTypeElementList by flattening the elements in `lists`
+  public init(combining lists: [ExpressibleAsTupleTypeElementList]) {
+    self.elements = lists.flatMap {
+      $0.createTupleTypeElementList().elements
+    }
   }
 
   public init(arrayLiteral elements: ExpressibleAsTupleTypeElement...) {
@@ -1642,6 +2222,12 @@ public struct TupleTypeElementList: ExpressibleByArrayLiteral, SyntaxBuildable, 
   }
 }
 
+extension Array: ExpressibleAsTupleTypeElementList where Element == ExpressibleAsTupleTypeElement {
+  public func createTupleTypeElementList() -> TupleTypeElementList {
+    return TupleTypeElementList(self)
+  }
+}
+
 /// `GenericArgumentList` represents a collection of `GenericArgument`s.
 public struct GenericArgumentList: ExpressibleByArrayLiteral, SyntaxBuildable, ExpressibleAsGenericArgumentList {
   let elements: [GenericArgument]
@@ -1651,6 +2237,13 @@ public struct GenericArgumentList: ExpressibleByArrayLiteral, SyntaxBuildable, E
   ///   - elements: A list of `ExpressibleAsGenericArgument`
   public init(_ elements: [ExpressibleAsGenericArgument]) {
     self.elements = elements.map { $0.createGenericArgument() }
+  }
+  
+  /// Creates a new GenericArgumentList by flattening the elements in `lists`
+  public init(combining lists: [ExpressibleAsGenericArgumentList]) {
+    self.elements = lists.flatMap {
+      $0.createGenericArgumentList().elements
+    }
   }
 
   public init(arrayLiteral elements: ExpressibleAsGenericArgument...) {
@@ -1685,6 +2278,12 @@ public struct GenericArgumentList: ExpressibleByArrayLiteral, SyntaxBuildable, E
   }
 }
 
+extension Array: ExpressibleAsGenericArgumentList where Element == ExpressibleAsGenericArgument {
+  public func createGenericArgumentList() -> GenericArgumentList {
+    return GenericArgumentList(self)
+  }
+}
+
 /// `TuplePatternElementList` represents a collection of `TuplePatternElement`s.
 public struct TuplePatternElementList: ExpressibleByArrayLiteral, SyntaxBuildable, ExpressibleAsTuplePatternElementList {
   let elements: [TuplePatternElement]
@@ -1694,6 +2293,13 @@ public struct TuplePatternElementList: ExpressibleByArrayLiteral, SyntaxBuildabl
   ///   - elements: A list of `ExpressibleAsTuplePatternElement`
   public init(_ elements: [ExpressibleAsTuplePatternElement]) {
     self.elements = elements.map { $0.createTuplePatternElement() }
+  }
+  
+  /// Creates a new TuplePatternElementList by flattening the elements in `lists`
+  public init(combining lists: [ExpressibleAsTuplePatternElementList]) {
+    self.elements = lists.flatMap {
+      $0.createTuplePatternElementList().elements
+    }
   }
 
   public init(arrayLiteral elements: ExpressibleAsTuplePatternElement...) {
@@ -1728,6 +2334,12 @@ public struct TuplePatternElementList: ExpressibleByArrayLiteral, SyntaxBuildabl
   }
 }
 
+extension Array: ExpressibleAsTuplePatternElementList where Element == ExpressibleAsTuplePatternElement {
+  public func createTuplePatternElementList() -> TuplePatternElementList {
+    return TuplePatternElementList(self)
+  }
+}
+
 /// `AvailabilitySpecList` represents a collection of `AvailabilityArgument`s.
 public struct AvailabilitySpecList: ExpressibleByArrayLiteral, SyntaxBuildable, ExpressibleAsAvailabilitySpecList {
   let elements: [AvailabilityArgument]
@@ -1737,6 +2349,13 @@ public struct AvailabilitySpecList: ExpressibleByArrayLiteral, SyntaxBuildable, 
   ///   - elements: A list of `ExpressibleAsAvailabilityArgument`
   public init(_ elements: [ExpressibleAsAvailabilityArgument]) {
     self.elements = elements.map { $0.createAvailabilityArgument() }
+  }
+  
+  /// Creates a new AvailabilitySpecList by flattening the elements in `lists`
+  public init(combining lists: [ExpressibleAsAvailabilitySpecList]) {
+    self.elements = lists.flatMap {
+      $0.createAvailabilitySpecList().elements
+    }
   }
 
   public init(arrayLiteral elements: ExpressibleAsAvailabilityArgument...) {
@@ -1768,6 +2387,12 @@ public struct AvailabilitySpecList: ExpressibleByArrayLiteral, SyntaxBuildable, 
   /// To resolve the ambiguity, provide a fixed implementation that doesn't perform any conversions.
   public func createSyntaxBuildable() -> SyntaxBuildable {
     return self
+  }
+}
+
+extension Array: ExpressibleAsAvailabilitySpecList where Element == ExpressibleAsAvailabilityArgument {
+  public func createAvailabilitySpecList() -> AvailabilitySpecList {
+    return AvailabilitySpecList(self)
   }
 }
 

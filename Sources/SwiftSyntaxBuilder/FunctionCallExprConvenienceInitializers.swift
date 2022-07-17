@@ -14,21 +14,24 @@
 import SwiftSyntax
 
 extension FunctionCallExpr {
+  /// A convenience initializer that allows passing in arguments using a result builder
+  /// instead of having to wrap them in a `TupleExprElementList`.
+  /// The presence of the parenthesis will be inferred based on the presence of arguments and the trailing closure.
   public init(
-    _ calledExpression: ExpressibleAsIdentifierExpr,
-    leftParen: TokenSyntax? = nil,
-    rightParen: TokenSyntax? = nil,
+    _ calledExpression: ExpressibleAsExprBuildable,
     trailingClosure: ExpressibleAsClosureExpr? = nil,
-    @TupleExprElementListBuilder argumentListBuilder: () -> ExpressibleAsTupleExprElementList = { TupleExprElementList([]) },
-    @MultipleTrailingClosureElementListBuilder additionalTrailingClosuresBuilder: () -> MultipleTrailingClosureElementList? = { nil }
+    additionalTrailingClosures: MultipleTrailingClosureElementList? = nil,
+    @TupleExprElementListBuilder argumentList: () -> ExpressibleAsTupleExprElementList = { [] }
   ) {
+    let argumentList = argumentList().createTupleExprElementList()
+    let shouldOmitParens = argumentList.elements.isEmpty && trailingClosure != nil
     self.init(
-      calledExpression: calledExpression.createIdentifierExpr(),
-      leftParen: leftParen,
-      argumentList: argumentListBuilder(),
-      rightParen: rightParen,
+      calledExpression: calledExpression.createExprBuildable(),
+      leftParen: shouldOmitParens ? nil : .leftParen,
+      argumentList: argumentList,
+      rightParen: shouldOmitParens ? nil : .rightParen,
       trailingClosure: trailingClosure,
-      additionalTrailingClosures: additionalTrailingClosuresBuilder()
+      additionalTrailingClosures: additionalTrailingClosures
     )
   }
 }

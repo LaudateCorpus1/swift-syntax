@@ -180,6 +180,9 @@ internal enum SyntaxKind: CSyntaxKind {
   case derivativeRegistrationAttributeArguments = 241
   case qualifiedDeclName = 242
   case functionDeclName = 239
+  case backDeployAttributeSpecList = 257
+  case backDeployVersionList = 258
+  case backDeployVersionArgument = 259
   case continueStmt = 72
   case whileStmt = 73
   case deferStmt = 74
@@ -223,8 +226,11 @@ internal enum SyntaxKind: CSyntaxKind {
   case sameTypeRequirement = 149
   case genericParameterList = 195
   case genericParameter = 150
+  case primaryAssociatedTypeList = 254
+  case primaryAssociatedType = 255
   case genericParameterClause = 151
   case conformanceRequirement = 152
+  case primaryAssociatedTypeClause = 256
   case simpleTypeIdentifier = 212
   case memberTypeIdentifier = 213
   case classRestrictionType = 214
@@ -232,7 +238,7 @@ internal enum SyntaxKind: CSyntaxKind {
   case dictionaryType = 216
   case metatypeType = 217
   case optionalType = 218
-  case someType = 230
+  case constrainedSugarType = 230
   case implicitlyUnwrappedOptionalType = 219
   case compositionTypeElement = 153
   case compositionTypeElementList = 196
@@ -294,6 +300,7 @@ internal enum SyntaxKind: CSyntaxKind {
     case .specializeAttributeSpecList: return true
     case .objCSelector: return true
     case .differentiabilityParamList: return true
+    case .backDeployVersionList: return true
     case .switchCaseList: return true
     case .catchClauseList: return true
     case .caseItemList: return true
@@ -301,6 +308,7 @@ internal enum SyntaxKind: CSyntaxKind {
     case .conditionElementList: return true
     case .genericRequirementList: return true
     case .genericParameterList: return true
+    case .primaryAssociatedTypeList: return true
     case .compositionTypeElementList: return true
     case .tupleTypeElementList: return true
     case .genericArgumentList: return true

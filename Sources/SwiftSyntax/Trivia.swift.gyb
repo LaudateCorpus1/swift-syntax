@@ -17,8 +17,6 @@
 //
 //===----------------------------------------------------------------------===//
 
-import Foundation
-
 /// A contiguous stretch of a single kind of trivia. The constituent part of
 /// a `Trivia` collection.
 ///
@@ -65,7 +63,17 @@ extension TriviaPiece: TextOutputStreamable {
 extension TriviaPiece: CustomDebugStringConvertible {
   /// Returns a description used by dump.
   public var debugDescription: String {
-    return "TriviaPiece"
+    switch self {
+% for trivia in TRIVIAS:
+%   if trivia.is_collection():
+    case .${trivia.lower_name}s(let data):
+      return "${trivia.lower_name}s(\(data))"
+%   else:
+    case .${trivia.lower_name}(let name):
+      return "${trivia.lower_name}(\(name))"
+%   end
+% end
+    }
   }
 }
 
@@ -84,6 +92,11 @@ public struct Trivia {
     return Trivia(pieces: [])
   }
 
+  /// Whether the Trivia contains no pieces.
+  public var isEmpty: Bool {
+    pieces.isEmpty
+  }
+
   /// Creates a new `Trivia` by appending the provided `TriviaPiece` to the end.
   public func appending(_ piece: TriviaPiece) -> Trivia {
     var copy = pieces
@@ -99,19 +112,24 @@ public struct Trivia {
   public var byteSize: Int {
     return sourceLength.utf8Length
   }
-
 % for trivia in TRIVIAS:
+
 %   if trivia.is_collection():
 %   joined = ''.join(trivia.swift_characters)
-    /// Return a piece of trivia for some number of '${joined}' characters.
-    public static func ${trivia.lower_name}s(_ count: Int) -> Trivia {
-      return [.${trivia.lower_name}s(count)]
-    }
+  /// Returns a piece of trivia for some number of '${joined}' characters.
+  public static func ${trivia.lower_name}s(_ count: Int) -> Trivia {
+    return [.${trivia.lower_name}s(count)]
+  }
+
+  /// Gets a piece of trivia for '${joined}' characters.
+  public static var ${trivia.lower_name}: Trivia {
+    return .${trivia.lower_name}s(1)
+  }
 %   else:
-    /// Return a piece of trivia for ${trivia.name}.
-    public static func ${trivia.lower_name}(_ text: String) -> Trivia {
-      return [.${trivia.lower_name}(text)]
-    }
+  /// Returns a piece of trivia for ${trivia.name}.
+  public static func ${trivia.lower_name}(_ text: String) -> Trivia {
+    return [.${trivia.lower_name}(text)]
+  }
 %   end
 % end
 }

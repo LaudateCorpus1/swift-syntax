@@ -4207,7 +4207,7 @@ extension StructDeclSyntax {
 
 public struct ProtocolDeclSyntaxBuilder {
   private var layout =
-    Array<RawSyntax?>(repeating: nil, count: 7)
+    Array<RawSyntax?>(repeating: nil, count: 8)
 
   internal init() {}
 
@@ -4243,6 +4243,11 @@ public struct ProtocolDeclSyntaxBuilder {
     layout[idx] = node.raw
   }
 
+  public mutating func usePrimaryAssociatedTypeClause(_ node: PrimaryAssociatedTypeClauseSyntax) {
+    let idx = ProtocolDeclSyntax.Cursor.primaryAssociatedTypeClause.rawValue
+    layout[idx] = node.raw
+  }
+
   public mutating func useInheritanceClause(_ node: TypeInheritanceClauseSyntax) {
     let idx = ProtocolDeclSyntax.Cursor.inheritanceClause.rawValue
     layout[idx] = node.raw
@@ -4265,8 +4270,8 @@ public struct ProtocolDeclSyntaxBuilder {
     if (layout[3] == nil) {
       layout[3] = RawSyntax.missingToken(TokenKind.identifier(""))
     }
-    if (layout[6] == nil) {
-      layout[6] = RawSyntax.missing(SyntaxKind.memberDeclBlock)
+    if (layout[7] == nil) {
+      layout[7] = RawSyntax.missing(SyntaxKind.memberDeclBlock)
     }
 
     return .forRoot(RawSyntax.createAndCalcLength(kind: .protocolDecl,
@@ -6426,8 +6431,8 @@ public struct TargetFunctionEntrySyntaxBuilder {
     layout[idx] = node.raw
   }
 
-  public mutating func useDelcname(_ node: DeclNameSyntax) {
-    let idx = TargetFunctionEntrySyntax.Cursor.delcname.rawValue
+  public mutating func useDeclname(_ node: DeclNameSyntax) {
+    let idx = TargetFunctionEntrySyntax.Cursor.declname.rawValue
     layout[idx] = node.raw
   }
 
@@ -7041,6 +7046,109 @@ extension FunctionDeclNameSyntax {
   ///            closure.
   public init(_ build: (inout FunctionDeclNameSyntaxBuilder) -> Void) {
     var builder = FunctionDeclNameSyntaxBuilder()
+    build(&builder)
+    let data = builder.buildData()
+    self.init(data)
+  }
+}
+
+public struct BackDeployAttributeSpecListSyntaxBuilder {
+  private var layout =
+    Array<RawSyntax?>(repeating: nil, count: 3)
+
+  internal init() {}
+
+  public mutating func useBeforeLabel(_ node: TokenSyntax) {
+    let idx = BackDeployAttributeSpecListSyntax.Cursor.beforeLabel.rawValue
+    layout[idx] = node.raw
+  }
+
+  public mutating func useColon(_ node: TokenSyntax) {
+    let idx = BackDeployAttributeSpecListSyntax.Cursor.colon.rawValue
+    layout[idx] = node.raw
+  }
+
+  public mutating func addAvailability(_ elt: BackDeployVersionArgumentSyntax) {
+    let idx = BackDeployAttributeSpecListSyntax.Cursor.versionList.rawValue
+    if let list = layout[idx] {
+      layout[idx] = list.appending(elt.raw)
+    } else {
+      layout[idx] = RawSyntax.create(kind: SyntaxKind.backDeployVersionList,
+        layout: [elt.raw], length: elt.raw.totalLength,
+        presence: SourcePresence.present)
+    }
+  }
+
+  internal mutating func buildData() -> SyntaxData {
+    if (layout[0] == nil) {
+      layout[0] = RawSyntax.missingToken(TokenKind.identifier(""))
+    }
+    if (layout[1] == nil) {
+      layout[1] = RawSyntax.missingToken(TokenKind.colon)
+    }
+    if (layout[2] == nil) {
+      layout[2] = RawSyntax.missing(SyntaxKind.backDeployVersionList)
+    }
+
+    return .forRoot(RawSyntax.createAndCalcLength(kind: .backDeployAttributeSpecList,
+      layout: layout, presence: .present))
+  }
+}
+
+extension BackDeployAttributeSpecListSyntax {
+  /// Creates a `BackDeployAttributeSpecListSyntax` using the provided build function.
+  /// - Parameter:
+  ///   - build: A closure that will be invoked in order to initialize
+  ///            the fields of the syntax node.
+  ///            This closure is passed a `BackDeployAttributeSpecListSyntaxBuilder` which you can use to
+  ///            incrementally build the structure of the node.
+  /// - Returns: A `BackDeployAttributeSpecListSyntax` with all the fields populated in the builder
+  ///            closure.
+  public init(_ build: (inout BackDeployAttributeSpecListSyntaxBuilder) -> Void) {
+    var builder = BackDeployAttributeSpecListSyntaxBuilder()
+    build(&builder)
+    let data = builder.buildData()
+    self.init(data)
+  }
+}
+
+public struct BackDeployVersionArgumentSyntaxBuilder {
+  private var layout =
+    Array<RawSyntax?>(repeating: nil, count: 2)
+
+  internal init() {}
+
+  public mutating func useAvailabilityVersionRestriction(_ node: AvailabilityVersionRestrictionSyntax) {
+    let idx = BackDeployVersionArgumentSyntax.Cursor.availabilityVersionRestriction.rawValue
+    layout[idx] = node.raw
+  }
+
+  public mutating func useTrailingComma(_ node: TokenSyntax) {
+    let idx = BackDeployVersionArgumentSyntax.Cursor.trailingComma.rawValue
+    layout[idx] = node.raw
+  }
+
+  internal mutating func buildData() -> SyntaxData {
+    if (layout[0] == nil) {
+      layout[0] = RawSyntax.missing(SyntaxKind.availabilityVersionRestriction)
+    }
+
+    return .forRoot(RawSyntax.createAndCalcLength(kind: .backDeployVersionArgument,
+      layout: layout, presence: .present))
+  }
+}
+
+extension BackDeployVersionArgumentSyntax {
+  /// Creates a `BackDeployVersionArgumentSyntax` using the provided build function.
+  /// - Parameter:
+  ///   - build: A closure that will be invoked in order to initialize
+  ///            the fields of the syntax node.
+  ///            This closure is passed a `BackDeployVersionArgumentSyntaxBuilder` which you can use to
+  ///            incrementally build the structure of the node.
+  /// - Returns: A `BackDeployVersionArgumentSyntax` with all the fields populated in the builder
+  ///            closure.
+  public init(_ build: (inout BackDeployVersionArgumentSyntaxBuilder) -> Void) {
+    var builder = BackDeployVersionArgumentSyntaxBuilder()
     build(&builder)
     let data = builder.buildData()
     self.init(data)
@@ -8126,9 +8234,6 @@ public struct OptionalBindingConditionSyntaxBuilder {
     if (layout[1] == nil) {
       layout[1] = RawSyntax.missing(SyntaxKind.pattern)
     }
-    if (layout[3] == nil) {
-      layout[3] = RawSyntax.missing(SyntaxKind.initializerClause)
-    }
 
     return .forRoot(RawSyntax.createAndCalcLength(kind: .optionalBindingCondition,
       layout: layout, presence: .present))
@@ -9066,6 +9171,49 @@ extension GenericParameterSyntax {
   }
 }
 
+public struct PrimaryAssociatedTypeSyntaxBuilder {
+  private var layout =
+    Array<RawSyntax?>(repeating: nil, count: 2)
+
+  internal init() {}
+
+  public mutating func useName(_ node: TokenSyntax) {
+    let idx = PrimaryAssociatedTypeSyntax.Cursor.name.rawValue
+    layout[idx] = node.raw
+  }
+
+  public mutating func useTrailingComma(_ node: TokenSyntax) {
+    let idx = PrimaryAssociatedTypeSyntax.Cursor.trailingComma.rawValue
+    layout[idx] = node.raw
+  }
+
+  internal mutating func buildData() -> SyntaxData {
+    if (layout[0] == nil) {
+      layout[0] = RawSyntax.missingToken(TokenKind.identifier(""))
+    }
+
+    return .forRoot(RawSyntax.createAndCalcLength(kind: .primaryAssociatedType,
+      layout: layout, presence: .present))
+  }
+}
+
+extension PrimaryAssociatedTypeSyntax {
+  /// Creates a `PrimaryAssociatedTypeSyntax` using the provided build function.
+  /// - Parameter:
+  ///   - build: A closure that will be invoked in order to initialize
+  ///            the fields of the syntax node.
+  ///            This closure is passed a `PrimaryAssociatedTypeSyntaxBuilder` which you can use to
+  ///            incrementally build the structure of the node.
+  /// - Returns: A `PrimaryAssociatedTypeSyntax` with all the fields populated in the builder
+  ///            closure.
+  public init(_ build: (inout PrimaryAssociatedTypeSyntaxBuilder) -> Void) {
+    var builder = PrimaryAssociatedTypeSyntaxBuilder()
+    build(&builder)
+    let data = builder.buildData()
+    self.init(data)
+  }
+}
+
 public struct GenericParameterClauseSyntaxBuilder {
   private var layout =
     Array<RawSyntax?>(repeating: nil, count: 3)
@@ -9174,6 +9322,66 @@ extension ConformanceRequirementSyntax {
   ///            closure.
   public init(_ build: (inout ConformanceRequirementSyntaxBuilder) -> Void) {
     var builder = ConformanceRequirementSyntaxBuilder()
+    build(&builder)
+    let data = builder.buildData()
+    self.init(data)
+  }
+}
+
+public struct PrimaryAssociatedTypeClauseSyntaxBuilder {
+  private var layout =
+    Array<RawSyntax?>(repeating: nil, count: 3)
+
+  internal init() {}
+
+  public mutating func useLeftAngleBracket(_ node: TokenSyntax) {
+    let idx = PrimaryAssociatedTypeClauseSyntax.Cursor.leftAngleBracket.rawValue
+    layout[idx] = node.raw
+  }
+
+  public mutating func addPrimaryAssociatedType(_ elt: PrimaryAssociatedTypeSyntax) {
+    let idx = PrimaryAssociatedTypeClauseSyntax.Cursor.primaryAssociatedTypeList.rawValue
+    if let list = layout[idx] {
+      layout[idx] = list.appending(elt.raw)
+    } else {
+      layout[idx] = RawSyntax.create(kind: SyntaxKind.primaryAssociatedTypeList,
+        layout: [elt.raw], length: elt.raw.totalLength,
+        presence: SourcePresence.present)
+    }
+  }
+
+  public mutating func useRightAngleBracket(_ node: TokenSyntax) {
+    let idx = PrimaryAssociatedTypeClauseSyntax.Cursor.rightAngleBracket.rawValue
+    layout[idx] = node.raw
+  }
+
+  internal mutating func buildData() -> SyntaxData {
+    if (layout[0] == nil) {
+      layout[0] = RawSyntax.missingToken(TokenKind.leftAngle)
+    }
+    if (layout[1] == nil) {
+      layout[1] = RawSyntax.missing(SyntaxKind.primaryAssociatedTypeList)
+    }
+    if (layout[2] == nil) {
+      layout[2] = RawSyntax.missingToken(TokenKind.rightAngle)
+    }
+
+    return .forRoot(RawSyntax.createAndCalcLength(kind: .primaryAssociatedTypeClause,
+      layout: layout, presence: .present))
+  }
+}
+
+extension PrimaryAssociatedTypeClauseSyntax {
+  /// Creates a `PrimaryAssociatedTypeClauseSyntax` using the provided build function.
+  /// - Parameter:
+  ///   - build: A closure that will be invoked in order to initialize
+  ///            the fields of the syntax node.
+  ///            This closure is passed a `PrimaryAssociatedTypeClauseSyntaxBuilder` which you can use to
+  ///            incrementally build the structure of the node.
+  /// - Returns: A `PrimaryAssociatedTypeClauseSyntax` with all the fields populated in the builder
+  ///            closure.
+  public init(_ build: (inout PrimaryAssociatedTypeClauseSyntaxBuilder) -> Void) {
+    var builder = PrimaryAssociatedTypeClauseSyntaxBuilder()
     build(&builder)
     let data = builder.buildData()
     self.init(data)
@@ -9544,19 +9752,19 @@ extension OptionalTypeSyntax {
   }
 }
 
-public struct SomeTypeSyntaxBuilder {
+public struct ConstrainedSugarTypeSyntaxBuilder {
   private var layout =
     Array<RawSyntax?>(repeating: nil, count: 2)
 
   internal init() {}
 
-  public mutating func useSomeSpecifier(_ node: TokenSyntax) {
-    let idx = SomeTypeSyntax.Cursor.someSpecifier.rawValue
+  public mutating func useSomeOrAnySpecifier(_ node: TokenSyntax) {
+    let idx = ConstrainedSugarTypeSyntax.Cursor.someOrAnySpecifier.rawValue
     layout[idx] = node.raw
   }
 
   public mutating func useBaseType(_ node: TypeSyntax) {
-    let idx = SomeTypeSyntax.Cursor.baseType.rawValue
+    let idx = ConstrainedSugarTypeSyntax.Cursor.baseType.rawValue
     layout[idx] = node.raw
   }
 
@@ -9568,22 +9776,22 @@ public struct SomeTypeSyntaxBuilder {
       layout[1] = RawSyntax.missing(SyntaxKind.type)
     }
 
-    return .forRoot(RawSyntax.createAndCalcLength(kind: .someType,
+    return .forRoot(RawSyntax.createAndCalcLength(kind: .constrainedSugarType,
       layout: layout, presence: .present))
   }
 }
 
-extension SomeTypeSyntax {
-  /// Creates a `SomeTypeSyntax` using the provided build function.
+extension ConstrainedSugarTypeSyntax {
+  /// Creates a `ConstrainedSugarTypeSyntax` using the provided build function.
   /// - Parameter:
   ///   - build: A closure that will be invoked in order to initialize
   ///            the fields of the syntax node.
-  ///            This closure is passed a `SomeTypeSyntaxBuilder` which you can use to
+  ///            This closure is passed a `ConstrainedSugarTypeSyntaxBuilder` which you can use to
   ///            incrementally build the structure of the node.
-  /// - Returns: A `SomeTypeSyntax` with all the fields populated in the builder
+  /// - Returns: A `ConstrainedSugarTypeSyntax` with all the fields populated in the builder
   ///            closure.
-  public init(_ build: (inout SomeTypeSyntaxBuilder) -> Void) {
-    var builder = SomeTypeSyntaxBuilder()
+  public init(_ build: (inout ConstrainedSugarTypeSyntaxBuilder) -> Void) {
+    var builder = ConstrainedSugarTypeSyntaxBuilder()
     build(&builder)
     let data = builder.buildData()
     self.init(data)

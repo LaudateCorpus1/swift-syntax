@@ -6988,7 +6988,7 @@ public struct TargetFunctionEntrySyntax: SyntaxProtocol, SyntaxHashable {
   enum Cursor: Int {
     case label
     case colon
-    case delcname
+    case declname
     case trailingComma
   }
 
@@ -7058,24 +7058,24 @@ public struct TargetFunctionEntrySyntax: SyntaxProtocol, SyntaxHashable {
   }
 
   /// The value for this argument
-  public var delcname: DeclNameSyntax {
+  public var declname: DeclNameSyntax {
     get {
-      let childData = data.child(at: Cursor.delcname,
+      let childData = data.child(at: Cursor.declname,
                                  parent: Syntax(self))
       return DeclNameSyntax(childData!)
     }
     set(value) {
-      self = withDelcname(value)
+      self = withDeclname(value)
     }
   }
 
-  /// Returns a copy of the receiver with its `delcname` replaced.
-  /// - param newChild: The new `delcname` to replace the node's
-  ///                   current `delcname`, if present.
-  public func withDelcname(
+  /// Returns a copy of the receiver with its `declname` replaced.
+  /// - param newChild: The new `declname` to replace the node's
+  ///                   current `declname`, if present.
+  public func withDeclname(
     _ newChild: DeclNameSyntax?) -> TargetFunctionEntrySyntax {
     let raw = newChild?.raw ?? RawSyntax.missing(SyntaxKind.declName)
-    let newData = data.replacingChild(raw, at: Cursor.delcname)
+    let newData = data.replacingChild(raw, at: Cursor.declname)
     return TargetFunctionEntrySyntax(newData)
   }
 
@@ -7151,7 +7151,7 @@ extension TargetFunctionEntrySyntax: CustomReflectable {
     return Mirror(self, children: [
       "label": Syntax(label).asProtocol(SyntaxProtocol.self),
       "colon": Syntax(colon).asProtocol(SyntaxProtocol.self),
-      "delcname": Syntax(delcname).asProtocol(SyntaxProtocol.self),
+      "declname": Syntax(declname).asProtocol(SyntaxProtocol.self),
       "trailingComma": trailingComma.map(Syntax.init)?.asProtocol(SyntaxProtocol.self) as Any,
     ])
   }
@@ -7603,7 +7603,7 @@ extension ImplementsAttributeArgumentsSyntax: CustomReflectable {
 // MARK: - ObjCSelectorPieceSyntax
 
 /// 
-/// A piece of an Objective-C selector. Either consisiting of just an
+/// A piece of an Objective-C selector. Either consisting of just an
 /// identifier for a nullary selector, an identifier and a colon for a
 /// labeled argument or just a colon for an unlabeled argument
 /// 
@@ -8909,6 +8909,286 @@ extension FunctionDeclNameSyntax: CustomReflectable {
   }
 }
 
+// MARK: - BackDeployAttributeSpecListSyntax
+
+/// 
+/// A collection of arguments for the `@_backDeploy` attribute
+/// 
+public struct BackDeployAttributeSpecListSyntax: SyntaxProtocol, SyntaxHashable {
+  enum Cursor: Int {
+    case beforeLabel
+    case colon
+    case versionList
+  }
+
+  public let _syntaxNode: Syntax
+
+  /// Converts the given `Syntax` node to a `BackDeployAttributeSpecListSyntax` if possible. Returns
+  /// `nil` if the conversion is not possible.
+  public init?(_ syntax: Syntax) {
+    guard syntax.raw.kind == .backDeployAttributeSpecList else { return nil }
+    self._syntaxNode = syntax
+  }
+
+  /// Creates a `BackDeployAttributeSpecListSyntax` node from the given `SyntaxData`. This assumes
+  /// that the `SyntaxData` is of the correct kind. If it is not, the behaviour
+  /// is undefined.
+  internal init(_ data: SyntaxData) {
+    assert(data.raw.kind == .backDeployAttributeSpecList)
+    self._syntaxNode = Syntax(data)
+  }
+
+  public var syntaxNodeType: SyntaxProtocol.Type {
+    return Swift.type(of: self)
+  }
+
+  /// The "before" label.
+  public var beforeLabel: TokenSyntax {
+    get {
+      let childData = data.child(at: Cursor.beforeLabel,
+                                 parent: Syntax(self))
+      return TokenSyntax(childData!)
+    }
+    set(value) {
+      self = withBeforeLabel(value)
+    }
+  }
+
+  /// Returns a copy of the receiver with its `beforeLabel` replaced.
+  /// - param newChild: The new `beforeLabel` to replace the node's
+  ///                   current `beforeLabel`, if present.
+  public func withBeforeLabel(
+    _ newChild: TokenSyntax?) -> BackDeployAttributeSpecListSyntax {
+    let raw = newChild?.raw ?? RawSyntax.missingToken(TokenKind.identifier(""))
+    let newData = data.replacingChild(raw, at: Cursor.beforeLabel)
+    return BackDeployAttributeSpecListSyntax(newData)
+  }
+
+  /// 
+  /// The colon separating "before" and the parameter list.
+  /// 
+  public var colon: TokenSyntax {
+    get {
+      let childData = data.child(at: Cursor.colon,
+                                 parent: Syntax(self))
+      return TokenSyntax(childData!)
+    }
+    set(value) {
+      self = withColon(value)
+    }
+  }
+
+  /// Returns a copy of the receiver with its `colon` replaced.
+  /// - param newChild: The new `colon` to replace the node's
+  ///                   current `colon`, if present.
+  public func withColon(
+    _ newChild: TokenSyntax?) -> BackDeployAttributeSpecListSyntax {
+    let raw = newChild?.raw ?? RawSyntax.missingToken(TokenKind.colon)
+    let newData = data.replacingChild(raw, at: Cursor.colon)
+    return BackDeployAttributeSpecListSyntax(newData)
+  }
+
+  /// 
+  /// The list of OS versions in which the declaration became ABI
+  /// stable.
+  /// 
+  public var versionList: BackDeployVersionListSyntax {
+    get {
+      let childData = data.child(at: Cursor.versionList,
+                                 parent: Syntax(self))
+      return BackDeployVersionListSyntax(childData!)
+    }
+    set(value) {
+      self = withVersionList(value)
+    }
+  }
+
+  /// Adds the provided `Availability` to the node's `versionList`
+  /// collection.
+  /// - param element: The new `Availability` to add to the node's
+  ///                  `versionList` collection.
+  /// - returns: A copy of the receiver with the provided `Availability`
+  ///            appended to its `versionList` collection.
+  public func addAvailability(_ element: BackDeployVersionArgumentSyntax) -> BackDeployAttributeSpecListSyntax {
+    var collection: RawSyntax
+    if let col = raw[Cursor.versionList] {
+      collection = col.appending(element.raw)
+    } else {
+      collection = RawSyntax.create(kind: SyntaxKind.backDeployVersionList,
+        layout: [element.raw], length: element.raw.totalLength, presence: .present)
+    }
+    let newData = data.replacingChild(collection,
+                                      at: Cursor.versionList)
+    return BackDeployAttributeSpecListSyntax(newData)
+  }
+
+  /// Returns a copy of the receiver with its `versionList` replaced.
+  /// - param newChild: The new `versionList` to replace the node's
+  ///                   current `versionList`, if present.
+  public func withVersionList(
+    _ newChild: BackDeployVersionListSyntax?) -> BackDeployAttributeSpecListSyntax {
+    let raw = newChild?.raw ?? RawSyntax.missing(SyntaxKind.backDeployVersionList)
+    let newData = data.replacingChild(raw, at: Cursor.versionList)
+    return BackDeployAttributeSpecListSyntax(newData)
+  }
+
+
+  public func _validateLayout() {
+    let rawChildren = Array(RawSyntaxChildren(Syntax(self)))
+    assert(rawChildren.count == 3)
+    // Check child #0 child is TokenSyntax 
+    assert(rawChildren[0].raw != nil)
+    if let raw = rawChildren[0].raw {
+      let info = rawChildren[0].syntaxInfo
+      let absoluteRaw = AbsoluteRawSyntax(raw: raw, info: info)
+      let syntaxData = SyntaxData(absoluteRaw, parent: Syntax(self))
+      let syntaxChild = Syntax(syntaxData)
+      assert(syntaxChild.is(TokenSyntax.self))
+    }
+    // Check child #1 child is TokenSyntax 
+    assert(rawChildren[1].raw != nil)
+    if let raw = rawChildren[1].raw {
+      let info = rawChildren[1].syntaxInfo
+      let absoluteRaw = AbsoluteRawSyntax(raw: raw, info: info)
+      let syntaxData = SyntaxData(absoluteRaw, parent: Syntax(self))
+      let syntaxChild = Syntax(syntaxData)
+      assert(syntaxChild.is(TokenSyntax.self))
+    }
+    // Check child #2 child is BackDeployVersionListSyntax 
+    assert(rawChildren[2].raw != nil)
+    if let raw = rawChildren[2].raw {
+      let info = rawChildren[2].syntaxInfo
+      let absoluteRaw = AbsoluteRawSyntax(raw: raw, info: info)
+      let syntaxData = SyntaxData(absoluteRaw, parent: Syntax(self))
+      let syntaxChild = Syntax(syntaxData)
+      assert(syntaxChild.is(BackDeployVersionListSyntax.self))
+    }
+  }
+}
+
+extension BackDeployAttributeSpecListSyntax: CustomReflectable {
+  public var customMirror: Mirror {
+    return Mirror(self, children: [
+      "beforeLabel": Syntax(beforeLabel).asProtocol(SyntaxProtocol.self),
+      "colon": Syntax(colon).asProtocol(SyntaxProtocol.self),
+      "versionList": Syntax(versionList).asProtocol(SyntaxProtocol.self),
+    ])
+  }
+}
+
+// MARK: - BackDeployVersionArgumentSyntax
+
+/// 
+/// A single platform/version pair in a `@_backDeploy` attribute,
+/// e.g. `iOS 10.1`.
+/// 
+public struct BackDeployVersionArgumentSyntax: SyntaxProtocol, SyntaxHashable {
+  enum Cursor: Int {
+    case availabilityVersionRestriction
+    case trailingComma
+  }
+
+  public let _syntaxNode: Syntax
+
+  /// Converts the given `Syntax` node to a `BackDeployVersionArgumentSyntax` if possible. Returns
+  /// `nil` if the conversion is not possible.
+  public init?(_ syntax: Syntax) {
+    guard syntax.raw.kind == .backDeployVersionArgument else { return nil }
+    self._syntaxNode = syntax
+  }
+
+  /// Creates a `BackDeployVersionArgumentSyntax` node from the given `SyntaxData`. This assumes
+  /// that the `SyntaxData` is of the correct kind. If it is not, the behaviour
+  /// is undefined.
+  internal init(_ data: SyntaxData) {
+    assert(data.raw.kind == .backDeployVersionArgument)
+    self._syntaxNode = Syntax(data)
+  }
+
+  public var syntaxNodeType: SyntaxProtocol.Type {
+    return Swift.type(of: self)
+  }
+
+  public var availabilityVersionRestriction: AvailabilityVersionRestrictionSyntax {
+    get {
+      let childData = data.child(at: Cursor.availabilityVersionRestriction,
+                                 parent: Syntax(self))
+      return AvailabilityVersionRestrictionSyntax(childData!)
+    }
+    set(value) {
+      self = withAvailabilityVersionRestriction(value)
+    }
+  }
+
+  /// Returns a copy of the receiver with its `availabilityVersionRestriction` replaced.
+  /// - param newChild: The new `availabilityVersionRestriction` to replace the node's
+  ///                   current `availabilityVersionRestriction`, if present.
+  public func withAvailabilityVersionRestriction(
+    _ newChild: AvailabilityVersionRestrictionSyntax?) -> BackDeployVersionArgumentSyntax {
+    let raw = newChild?.raw ?? RawSyntax.missing(SyntaxKind.availabilityVersionRestriction)
+    let newData = data.replacingChild(raw, at: Cursor.availabilityVersionRestriction)
+    return BackDeployVersionArgumentSyntax(newData)
+  }
+
+  /// 
+  /// A trailing comma if the argument is followed by another
+  /// argument
+  /// 
+  public var trailingComma: TokenSyntax? {
+    get {
+      let childData = data.child(at: Cursor.trailingComma,
+                                 parent: Syntax(self))
+      if childData == nil { return nil }
+      return TokenSyntax(childData!)
+    }
+    set(value) {
+      self = withTrailingComma(value)
+    }
+  }
+
+  /// Returns a copy of the receiver with its `trailingComma` replaced.
+  /// - param newChild: The new `trailingComma` to replace the node's
+  ///                   current `trailingComma`, if present.
+  public func withTrailingComma(
+    _ newChild: TokenSyntax?) -> BackDeployVersionArgumentSyntax {
+    let raw = newChild?.raw
+    let newData = data.replacingChild(raw, at: Cursor.trailingComma)
+    return BackDeployVersionArgumentSyntax(newData)
+  }
+
+
+  public func _validateLayout() {
+    let rawChildren = Array(RawSyntaxChildren(Syntax(self)))
+    assert(rawChildren.count == 2)
+    // Check child #0 child is AvailabilityVersionRestrictionSyntax 
+    assert(rawChildren[0].raw != nil)
+    if let raw = rawChildren[0].raw {
+      let info = rawChildren[0].syntaxInfo
+      let absoluteRaw = AbsoluteRawSyntax(raw: raw, info: info)
+      let syntaxData = SyntaxData(absoluteRaw, parent: Syntax(self))
+      let syntaxChild = Syntax(syntaxData)
+      assert(syntaxChild.is(AvailabilityVersionRestrictionSyntax.self))
+    }
+    // Check child #1 child is TokenSyntax or missing
+    if let raw = rawChildren[1].raw {
+      let info = rawChildren[1].syntaxInfo
+      let absoluteRaw = AbsoluteRawSyntax(raw: raw, info: info)
+      let syntaxData = SyntaxData(absoluteRaw, parent: Syntax(self))
+      let syntaxChild = Syntax(syntaxData)
+      assert(syntaxChild.is(TokenSyntax.self))
+    }
+  }
+}
+
+extension BackDeployVersionArgumentSyntax: CustomReflectable {
+  public var customMirror: Mirror {
+    return Mirror(self, children: [
+      "availabilityVersionRestriction": Syntax(availabilityVersionRestriction).asProtocol(SyntaxProtocol.self),
+      "trailingComma": trailingComma.map(Syntax.init)?.asProtocol(SyntaxProtocol.self) as Any,
+    ])
+  }
+}
+
 // MARK: - WhereClauseSyntax
 
 public struct WhereClauseSyntax: SyntaxProtocol, SyntaxHashable {
@@ -9759,10 +10039,11 @@ public struct OptionalBindingConditionSyntax: SyntaxProtocol, SyntaxHashable {
     return OptionalBindingConditionSyntax(newData)
   }
 
-  public var initializer: InitializerClauseSyntax {
+  public var initializer: InitializerClauseSyntax? {
     get {
       let childData = data.child(at: Cursor.initializer,
                                  parent: Syntax(self))
+      if childData == nil { return nil }
       return InitializerClauseSyntax(childData!)
     }
     set(value) {
@@ -9775,7 +10056,7 @@ public struct OptionalBindingConditionSyntax: SyntaxProtocol, SyntaxHashable {
   ///                   current `initializer`, if present.
   public func withInitializer(
     _ newChild: InitializerClauseSyntax?) -> OptionalBindingConditionSyntax {
-    let raw = newChild?.raw ?? RawSyntax.missing(SyntaxKind.initializerClause)
+    let raw = newChild?.raw
     let newData = data.replacingChild(raw, at: Cursor.initializer)
     return OptionalBindingConditionSyntax(newData)
   }
@@ -9810,8 +10091,7 @@ public struct OptionalBindingConditionSyntax: SyntaxProtocol, SyntaxHashable {
       let syntaxChild = Syntax(syntaxData)
       assert(syntaxChild.is(TypeAnnotationSyntax.self))
     }
-    // Check child #3 child is InitializerClauseSyntax 
-    assert(rawChildren[3].raw != nil)
+    // Check child #3 child is InitializerClauseSyntax or missing
     if let raw = rawChildren[3].raw {
       let info = rawChildren[3].syntaxInfo
       let absoluteRaw = AbsoluteRawSyntax(raw: raw, info: info)
@@ -9828,7 +10108,7 @@ extension OptionalBindingConditionSyntax: CustomReflectable {
       "letOrVarKeyword": Syntax(letOrVarKeyword).asProtocol(SyntaxProtocol.self),
       "pattern": Syntax(pattern).asProtocol(SyntaxProtocol.self),
       "typeAnnotation": typeAnnotation.map(Syntax.init)?.asProtocol(SyntaxProtocol.self) as Any,
-      "initializer": Syntax(initializer).asProtocol(SyntaxProtocol.self),
+      "initializer": initializer.map(Syntax.init)?.asProtocol(SyntaxProtocol.self) as Any,
     ])
   }
 }
@@ -11632,6 +11912,111 @@ extension GenericParameterSyntax: CustomReflectable {
   }
 }
 
+// MARK: - PrimaryAssociatedTypeSyntax
+
+public struct PrimaryAssociatedTypeSyntax: SyntaxProtocol, SyntaxHashable {
+  enum Cursor: Int {
+    case name
+    case trailingComma
+  }
+
+  public let _syntaxNode: Syntax
+
+  /// Converts the given `Syntax` node to a `PrimaryAssociatedTypeSyntax` if possible. Returns
+  /// `nil` if the conversion is not possible.
+  public init?(_ syntax: Syntax) {
+    guard syntax.raw.kind == .primaryAssociatedType else { return nil }
+    self._syntaxNode = syntax
+  }
+
+  /// Creates a `PrimaryAssociatedTypeSyntax` node from the given `SyntaxData`. This assumes
+  /// that the `SyntaxData` is of the correct kind. If it is not, the behaviour
+  /// is undefined.
+  internal init(_ data: SyntaxData) {
+    assert(data.raw.kind == .primaryAssociatedType)
+    self._syntaxNode = Syntax(data)
+  }
+
+  public var syntaxNodeType: SyntaxProtocol.Type {
+    return Swift.type(of: self)
+  }
+
+  public var name: TokenSyntax {
+    get {
+      let childData = data.child(at: Cursor.name,
+                                 parent: Syntax(self))
+      return TokenSyntax(childData!)
+    }
+    set(value) {
+      self = withName(value)
+    }
+  }
+
+  /// Returns a copy of the receiver with its `name` replaced.
+  /// - param newChild: The new `name` to replace the node's
+  ///                   current `name`, if present.
+  public func withName(
+    _ newChild: TokenSyntax?) -> PrimaryAssociatedTypeSyntax {
+    let raw = newChild?.raw ?? RawSyntax.missingToken(TokenKind.identifier(""))
+    let newData = data.replacingChild(raw, at: Cursor.name)
+    return PrimaryAssociatedTypeSyntax(newData)
+  }
+
+  public var trailingComma: TokenSyntax? {
+    get {
+      let childData = data.child(at: Cursor.trailingComma,
+                                 parent: Syntax(self))
+      if childData == nil { return nil }
+      return TokenSyntax(childData!)
+    }
+    set(value) {
+      self = withTrailingComma(value)
+    }
+  }
+
+  /// Returns a copy of the receiver with its `trailingComma` replaced.
+  /// - param newChild: The new `trailingComma` to replace the node's
+  ///                   current `trailingComma`, if present.
+  public func withTrailingComma(
+    _ newChild: TokenSyntax?) -> PrimaryAssociatedTypeSyntax {
+    let raw = newChild?.raw
+    let newData = data.replacingChild(raw, at: Cursor.trailingComma)
+    return PrimaryAssociatedTypeSyntax(newData)
+  }
+
+
+  public func _validateLayout() {
+    let rawChildren = Array(RawSyntaxChildren(Syntax(self)))
+    assert(rawChildren.count == 2)
+    // Check child #0 child is TokenSyntax 
+    assert(rawChildren[0].raw != nil)
+    if let raw = rawChildren[0].raw {
+      let info = rawChildren[0].syntaxInfo
+      let absoluteRaw = AbsoluteRawSyntax(raw: raw, info: info)
+      let syntaxData = SyntaxData(absoluteRaw, parent: Syntax(self))
+      let syntaxChild = Syntax(syntaxData)
+      assert(syntaxChild.is(TokenSyntax.self))
+    }
+    // Check child #1 child is TokenSyntax or missing
+    if let raw = rawChildren[1].raw {
+      let info = rawChildren[1].syntaxInfo
+      let absoluteRaw = AbsoluteRawSyntax(raw: raw, info: info)
+      let syntaxData = SyntaxData(absoluteRaw, parent: Syntax(self))
+      let syntaxChild = Syntax(syntaxData)
+      assert(syntaxChild.is(TokenSyntax.self))
+    }
+  }
+}
+
+extension PrimaryAssociatedTypeSyntax: CustomReflectable {
+  public var customMirror: Mirror {
+    return Mirror(self, children: [
+      "name": Syntax(name).asProtocol(SyntaxProtocol.self),
+      "trailingComma": trailingComma.map(Syntax.init)?.asProtocol(SyntaxProtocol.self) as Any,
+    ])
+  }
+}
+
 // MARK: - GenericParameterClauseSyntax
 
 public struct GenericParameterClauseSyntax: SyntaxProtocol, SyntaxHashable {
@@ -11921,6 +12306,162 @@ extension ConformanceRequirementSyntax: CustomReflectable {
       "leftTypeIdentifier": Syntax(leftTypeIdentifier).asProtocol(SyntaxProtocol.self),
       "colon": Syntax(colon).asProtocol(SyntaxProtocol.self),
       "rightTypeIdentifier": Syntax(rightTypeIdentifier).asProtocol(SyntaxProtocol.self),
+    ])
+  }
+}
+
+// MARK: - PrimaryAssociatedTypeClauseSyntax
+
+public struct PrimaryAssociatedTypeClauseSyntax: SyntaxProtocol, SyntaxHashable {
+  enum Cursor: Int {
+    case leftAngleBracket
+    case primaryAssociatedTypeList
+    case rightAngleBracket
+  }
+
+  public let _syntaxNode: Syntax
+
+  /// Converts the given `Syntax` node to a `PrimaryAssociatedTypeClauseSyntax` if possible. Returns
+  /// `nil` if the conversion is not possible.
+  public init?(_ syntax: Syntax) {
+    guard syntax.raw.kind == .primaryAssociatedTypeClause else { return nil }
+    self._syntaxNode = syntax
+  }
+
+  /// Creates a `PrimaryAssociatedTypeClauseSyntax` node from the given `SyntaxData`. This assumes
+  /// that the `SyntaxData` is of the correct kind. If it is not, the behaviour
+  /// is undefined.
+  internal init(_ data: SyntaxData) {
+    assert(data.raw.kind == .primaryAssociatedTypeClause)
+    self._syntaxNode = Syntax(data)
+  }
+
+  public var syntaxNodeType: SyntaxProtocol.Type {
+    return Swift.type(of: self)
+  }
+
+  public var leftAngleBracket: TokenSyntax {
+    get {
+      let childData = data.child(at: Cursor.leftAngleBracket,
+                                 parent: Syntax(self))
+      return TokenSyntax(childData!)
+    }
+    set(value) {
+      self = withLeftAngleBracket(value)
+    }
+  }
+
+  /// Returns a copy of the receiver with its `leftAngleBracket` replaced.
+  /// - param newChild: The new `leftAngleBracket` to replace the node's
+  ///                   current `leftAngleBracket`, if present.
+  public func withLeftAngleBracket(
+    _ newChild: TokenSyntax?) -> PrimaryAssociatedTypeClauseSyntax {
+    let raw = newChild?.raw ?? RawSyntax.missingToken(TokenKind.leftAngle)
+    let newData = data.replacingChild(raw, at: Cursor.leftAngleBracket)
+    return PrimaryAssociatedTypeClauseSyntax(newData)
+  }
+
+  public var primaryAssociatedTypeList: PrimaryAssociatedTypeListSyntax {
+    get {
+      let childData = data.child(at: Cursor.primaryAssociatedTypeList,
+                                 parent: Syntax(self))
+      return PrimaryAssociatedTypeListSyntax(childData!)
+    }
+    set(value) {
+      self = withPrimaryAssociatedTypeList(value)
+    }
+  }
+
+  /// Adds the provided `PrimaryAssociatedType` to the node's `primaryAssociatedTypeList`
+  /// collection.
+  /// - param element: The new `PrimaryAssociatedType` to add to the node's
+  ///                  `primaryAssociatedTypeList` collection.
+  /// - returns: A copy of the receiver with the provided `PrimaryAssociatedType`
+  ///            appended to its `primaryAssociatedTypeList` collection.
+  public func addPrimaryAssociatedType(_ element: PrimaryAssociatedTypeSyntax) -> PrimaryAssociatedTypeClauseSyntax {
+    var collection: RawSyntax
+    if let col = raw[Cursor.primaryAssociatedTypeList] {
+      collection = col.appending(element.raw)
+    } else {
+      collection = RawSyntax.create(kind: SyntaxKind.primaryAssociatedTypeList,
+        layout: [element.raw], length: element.raw.totalLength, presence: .present)
+    }
+    let newData = data.replacingChild(collection,
+                                      at: Cursor.primaryAssociatedTypeList)
+    return PrimaryAssociatedTypeClauseSyntax(newData)
+  }
+
+  /// Returns a copy of the receiver with its `primaryAssociatedTypeList` replaced.
+  /// - param newChild: The new `primaryAssociatedTypeList` to replace the node's
+  ///                   current `primaryAssociatedTypeList`, if present.
+  public func withPrimaryAssociatedTypeList(
+    _ newChild: PrimaryAssociatedTypeListSyntax?) -> PrimaryAssociatedTypeClauseSyntax {
+    let raw = newChild?.raw ?? RawSyntax.missing(SyntaxKind.primaryAssociatedTypeList)
+    let newData = data.replacingChild(raw, at: Cursor.primaryAssociatedTypeList)
+    return PrimaryAssociatedTypeClauseSyntax(newData)
+  }
+
+  public var rightAngleBracket: TokenSyntax {
+    get {
+      let childData = data.child(at: Cursor.rightAngleBracket,
+                                 parent: Syntax(self))
+      return TokenSyntax(childData!)
+    }
+    set(value) {
+      self = withRightAngleBracket(value)
+    }
+  }
+
+  /// Returns a copy of the receiver with its `rightAngleBracket` replaced.
+  /// - param newChild: The new `rightAngleBracket` to replace the node's
+  ///                   current `rightAngleBracket`, if present.
+  public func withRightAngleBracket(
+    _ newChild: TokenSyntax?) -> PrimaryAssociatedTypeClauseSyntax {
+    let raw = newChild?.raw ?? RawSyntax.missingToken(TokenKind.rightAngle)
+    let newData = data.replacingChild(raw, at: Cursor.rightAngleBracket)
+    return PrimaryAssociatedTypeClauseSyntax(newData)
+  }
+
+
+  public func _validateLayout() {
+    let rawChildren = Array(RawSyntaxChildren(Syntax(self)))
+    assert(rawChildren.count == 3)
+    // Check child #0 child is TokenSyntax 
+    assert(rawChildren[0].raw != nil)
+    if let raw = rawChildren[0].raw {
+      let info = rawChildren[0].syntaxInfo
+      let absoluteRaw = AbsoluteRawSyntax(raw: raw, info: info)
+      let syntaxData = SyntaxData(absoluteRaw, parent: Syntax(self))
+      let syntaxChild = Syntax(syntaxData)
+      assert(syntaxChild.is(TokenSyntax.self))
+    }
+    // Check child #1 child is PrimaryAssociatedTypeListSyntax 
+    assert(rawChildren[1].raw != nil)
+    if let raw = rawChildren[1].raw {
+      let info = rawChildren[1].syntaxInfo
+      let absoluteRaw = AbsoluteRawSyntax(raw: raw, info: info)
+      let syntaxData = SyntaxData(absoluteRaw, parent: Syntax(self))
+      let syntaxChild = Syntax(syntaxData)
+      assert(syntaxChild.is(PrimaryAssociatedTypeListSyntax.self))
+    }
+    // Check child #2 child is TokenSyntax 
+    assert(rawChildren[2].raw != nil)
+    if let raw = rawChildren[2].raw {
+      let info = rawChildren[2].syntaxInfo
+      let absoluteRaw = AbsoluteRawSyntax(raw: raw, info: info)
+      let syntaxData = SyntaxData(absoluteRaw, parent: Syntax(self))
+      let syntaxChild = Syntax(syntaxData)
+      assert(syntaxChild.is(TokenSyntax.self))
+    }
+  }
+}
+
+extension PrimaryAssociatedTypeClauseSyntax: CustomReflectable {
+  public var customMirror: Mirror {
+    return Mirror(self, children: [
+      "leftAngleBracket": Syntax(leftAngleBracket).asProtocol(SyntaxProtocol.self),
+      "primaryAssociatedTypeList": Syntax(primaryAssociatedTypeList).asProtocol(SyntaxProtocol.self),
+      "rightAngleBracket": Syntax(rightAngleBracket).asProtocol(SyntaxProtocol.self),
     ])
   }
 }
@@ -13238,7 +13779,7 @@ extension AvailabilityVersionRestrictionSyntax: CustomReflectable {
 
 /// 
 /// A version number of the form major.minor.patch in which the minor
-/// and patch part may be ommited.
+/// and patch part may be omitted.
 /// 
 public struct VersionTupleSyntax: SyntaxProtocol, SyntaxHashable {
   enum Cursor: Int {

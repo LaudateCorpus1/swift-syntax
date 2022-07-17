@@ -29,7 +29,7 @@ public enum SyntaxClassification {
   case floatingLiteral
   /// A string literal including multiline string literals. 
   case stringLiteral
-  /// The opening and closing paranthesis of string interpolation. 
+  /// The opening and closing parenthesis of string interpolation. 
   case stringInterpolationAnchor
   /// A `#` keyword like `#warning`. 
   case poundDirectiveKeyword
@@ -67,22 +67,14 @@ extension SyntaxClassification {
       switch (parentKind, indexInParent) {
       case (.awaitExpr, 0):
         return (.keyword, false)
-      case (.arrowExpr, 0):
-        return (.keyword, false)
-      case (.closureSignature, 3):
-        return (.keyword, false)
       case (.expressionSegment, 2):
         return (.stringInterpolationAnchor, true)
-      case (.functionSignature, 1):
-        return (.keyword, false)
       case (.ifConfigClause, 0):
         return (.buildConfigId, false)
       case (.ifConfigDecl, 1):
         return (.buildConfigId, false)
       case (.declModifier, 0):
         return (.attribute, false)
-      case (.accessorDecl, 4):
-        return (.keyword, false)
       case (.precedenceGroupRelation, 0):
         return (.keyword, false)
       case (.precedenceGroupAssociativity, 0):
@@ -95,9 +87,7 @@ extension SyntaxClassification {
         return (.typeIdentifier, false)
       case (.memberTypeIdentifier, 2):
         return (.typeIdentifier, false)
-      case (.someType, 0):
-        return (.keyword, false)
-      case (.functionType, 3):
+      case (.constrainedSugarType, 0):
         return (.keyword, false)
       case (.availabilityVersionRestriction, 0):
         return (.keyword, false)

@@ -5,16 +5,15 @@ import SwiftSyntaxBuilder
 final class ProtocolDeclTests: XCTestCase {
   func testProtocolDecl() {
     let returnType = ArrayType(elementType: "DeclSyntax")
-    let input = ParameterClause(parameterListBuilder: {
-      FunctionParameter(firstName: .identifier("format"), colon: .colon, type: "Format", trailingComma: .comma, attributesBuilder: {})
-      FunctionParameter(firstName: .identifier("leadingTrivia"), colon: .colon, type: OptionalType(wrappedType: "Trivia"), attributesBuilder: {})
-    })
+    let input = ParameterClause {
+      FunctionParameter(firstName: .identifier("format"), colon: .colon, type: "Format")
+      FunctionParameter(firstName: .identifier("leadingTrivia"), colon: .colon, type: OptionalType(wrappedType: "Trivia"))
+    }
     let functionSignature = FunctionSignature(input: input, output: returnType)
 
-    let buildable = ProtocolDecl(identifier: "DeclListBuildable", attributesBuilder: { TokenSyntax.public }, membersBuilder: {
-      // FIXME: We need to add the `modifiersBuilder` with a non-empty value, otherwise will the builder omit newline.
-      FunctionDecl(identifier: .identifier("buildDeclList"), signature: functionSignature, body: nil, modifiersBuilder: { TokenSyntax.public })
-    })
+    let buildable = ProtocolDecl(modifiers: [TokenSyntax.public], identifier: "DeclListBuildable") {
+      FunctionDecl(identifier: .identifier("buildDeclList"), signature: functionSignature, body: nil)
+    }
 
     let syntax = buildable.buildSyntax(format: Format())
 
@@ -22,8 +21,8 @@ final class ProtocolDeclTests: XCTestCase {
     syntax.write(to: &text)
 
     XCTAssertEqual(text, """
-    public protocol DeclListBuildable{
-        public func buildDeclList(format: Format, leadingTrivia: Trivia?)-> [DeclSyntax]
+    public protocol DeclListBuildable {
+        func buildDeclList(format: Format, leadingTrivia: Trivia?)-> [DeclSyntax]
     }
     """)
   }

@@ -7,20 +7,19 @@ final class ExtensionDeclTests: XCTestCase {
     let keywords = ["associatedtype", "class"].map { keyword -> VariableDecl in
       // We need to use `CodeBlock` here to ensure there is braces around.
       let body = CodeBlock {
-        FunctionCallExpr("SyntaxFactory.make\(keyword)Keyword",
-                         leftParen: .leftParen,
-                         rightParen: .rightParen)
+        FunctionCallExpr("SyntaxFactory.make\(keyword)Keyword")
       }
 
-      return VariableDecl(letOrVarKeyword: .var,
-                          modifiersBuilder: { TokenSyntax.public },
-                          bindingsBuilder: {
+      return VariableDecl(
+        modifiers: [TokenSyntax.public],
+        letOrVarKeyword: .var
+      ) {
         PatternBinding(pattern: "`\(keyword)`",
                        typeAnnotation: "TokenSyntax",
                        initializer: nil,
                        accessor: body)
 
-      })
+      }
     }
     let members = MemberDeclList(keywords)
     let buildable = ExtensionDecl(modifiers: nil,
@@ -33,11 +32,11 @@ final class ExtensionDeclTests: XCTestCase {
     syntax.write(to: &text)
 
     XCTAssertEqual(text, """
-    extension TokenSyntax{
-        public var `associatedtype`: TokenSyntax{
+    extension TokenSyntax {
+        public var `associatedtype`: TokenSyntax {
             SyntaxFactory.makeassociatedtypeKeyword()
         }
-        public var `class`: TokenSyntax{
+        public var `class`: TokenSyntax {
             SyntaxFactory.makeclassKeyword()
         }
     }

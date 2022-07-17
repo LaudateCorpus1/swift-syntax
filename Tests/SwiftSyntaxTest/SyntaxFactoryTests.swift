@@ -2,9 +2,9 @@ import XCTest
 import SwiftSyntax
 
 fileprivate func cannedStructDecl() -> StructDeclSyntax {
-  let structKW = SyntaxFactory.makeStructKeyword(trailingTrivia: .spaces(1))
-  let fooID = SyntaxFactory.makeIdentifier("Foo", trailingTrivia: .spaces(1))
-  let rBrace = SyntaxFactory.makeRightBraceToken(leadingTrivia: .newlines(1))
+  let structKW = SyntaxFactory.makeStructKeyword(trailingTrivia: .space)
+  let fooID = SyntaxFactory.makeIdentifier("Foo")
+  let rBrace = SyntaxFactory.makeRightBraceToken(leadingTrivia: .newline)
   let members = MemberDeclBlockSyntax {
     $0.useLeftBrace(SyntaxFactory.makeLeftBraceToken())
     $0.useRightBrace(rBrace)
@@ -28,11 +28,7 @@ public class SyntaxFactoryTests: XCTestCase {
                    }
                    """)
 
-    let forType = SyntaxFactory.makeIdentifier("`for`",
-                                               leadingTrivia: [],
-                                               trailingTrivia: [
-                                                 .spaces(1)
-                                               ])
+    let forType = SyntaxFactory.makeIdentifier("`for`")
     let newBrace = SyntaxFactory.makeRightBraceToken(leadingTrivia: .newlines(2))
 
     let renamed = structDecl.withIdentifier(forType)
@@ -61,15 +57,15 @@ public class SyntaxFactoryTests: XCTestCase {
 
   public func testTokenSyntax() {
     let tok = SyntaxFactory.makeStructKeyword()
-    XCTAssertEqual("\(tok)", "struct")
+    XCTAssertEqual("\(tok)", "struct ")
     XCTAssertTrue(tok.isPresent)
 
     let preSpacedTok = tok.withLeadingTrivia(.spaces(3))
-    XCTAssertEqual("\(preSpacedTok)", "   struct")
+    XCTAssertEqual("\(preSpacedTok)", "   struct ")
 
     var mutablePreSpacedTok = tok
     mutablePreSpacedTok.leadingTrivia = .spaces(4)
-    XCTAssertEqual("\(mutablePreSpacedTok)", "    struct")
+    XCTAssertEqual("\(mutablePreSpacedTok)", "    struct ")
 
     let postSpacedTok = tok.withTrailingTrivia(.spaces(6))
     XCTAssertEqual("\(postSpacedTok)", "struct      ")
@@ -101,13 +97,13 @@ public class SyntaxFactoryTests: XCTestCase {
 
     let terminatorArg = TupleExprElementSyntax {
       $0.useLabel(SyntaxFactory.makeIdentifier("terminator"))
-      $0.useColon(SyntaxFactory.makeColonToken(trailingTrivia: .spaces(1)))
+      $0.useColon(SyntaxFactory.makeColonToken(trailingTrivia: .space))
       $0.useExpression(ExprSyntax(SyntaxFactory.makeStringLiteralExpr(" ")))
     }
     let callWithTerminator = call.withArgumentList(
       SyntaxFactory.makeTupleExprElementList([
         arg.withTrailingComma(
-          SyntaxFactory.makeCommaToken(trailingTrivia: .spaces(1))),
+          SyntaxFactory.makeCommaToken(trailingTrivia: .space)),
         terminatorArg
       ])
     )
@@ -167,14 +163,14 @@ public class SyntaxFactoryTests: XCTestCase {
     
   public func testMakeBinaryOperator() {
     let first = IntegerLiteralExprSyntax {
-      $0.useDigits(SyntaxFactory.makeIntegerLiteral("1", trailingTrivia: .spaces(1)))
+      $0.useDigits(SyntaxFactory.makeIntegerLiteral("1", trailingTrivia: .space))
     }
     let second = IntegerLiteralExprSyntax {
       $0.useDigits(SyntaxFactory.makeIntegerLiteral("1"))
     }
     let operatorNames = ["==", "!=", "+", "-", "*", "/", "<", ">", "<=", ">="]
     operatorNames.forEach { operatorName in
-      let operatorToken = SyntaxFactory.makeBinaryOperator(operatorName, trailingTrivia: .spaces(1))
+      let operatorToken = SyntaxFactory.makeBinaryOperator(operatorName, trailingTrivia: .space)
       let operatorExpr = BinaryOperatorExprSyntax {
         $0.useOperatorToken(operatorToken)
       }

@@ -1,6 +1,6 @@
 %{
   from gyb_syntax_support import SYNTAX_NODES
-  from gyb_helpers import SyntaxBuildableNode
+  from gyb_helpers import SyntaxBuildableNode, SyntaxBuildableType, conformance_clause
   # -*- mode: Swift -*-
   # Ignore the following admonition it applies to the resulting .swift file only
 }%
@@ -23,14 +23,23 @@ import SwiftSyntax
 % for node in [SyntaxBuildableNode(syntax_node) for syntax_node in SYNTAX_NODES if syntax_node.is_buildable()]:
 %   type = node.type()
 %   base_type = node.base_type()
+%   conformances = [base_type.buildable(), type.expressible_as()]
+%   has_with_trailing_comma_trait = node.node.traits and 'WithTrailingComma' in node.node.traits
+%   if has_with_trailing_comma_trait:
+%     conformances.append("HasTrailingComma")
+%   end
 %   if node.documentation():
 /// ${node.documentation()}
 %   end
-public struct ${type.buildable()}: ${base_type.buildable()}, ${type.expressible_as()} {
+public struct ${type.buildable()}${conformance_clause(conformances)} {
 %   children = node.children()
 %   for child in children:
   let ${child.name()}: ${child.type().buildable()}
 %   end
+
+  /// The leading trivia attached to this syntax node once built.
+  /// This is typically used to add comments (e.g. for documentation).
+  let leadingTrivia: Trivia
 
   /// Creates a `${type.buildable()}` using the provided parameters.
   /// - Parameters:
@@ -38,12 +47,14 @@ public struct ${type.buildable()}: ${base_type.buildable()}, ${type.expressible_
   ///   - ${child.name()}: ${child.documentation()}
 %   end
   public init(
+    leadingTrivia: Trivia = [],
     ${',\n    '.join(['%s: %s%s' % (
       child.name(),
       child.type().expressible_as(),
       child.type().default_initialization()
     ) for child in children])}
   ) {
+    self.leadingTrivia = leadingTrivia
 %   for child in children:
 %     assert_stmt = child.generate_assert_stmt_text_choices(child.name())
     self.${child.name()} = ${child.type().generate_expr_convert_param_type_to_storage_type(child.name())}
@@ -61,10 +72,15 @@ public struct ${type.buildable()}: ${base_type.buildable()}, ${type.expressible_
     delegated_init_args = []
     for child in node.children():
       produce_expr = None # The expression that is used to call the default initializer defined above
-      if child.type().is_syntax_collection(): # Allow initializing syntax collections with result builders
+      if child.type().is_builder_initializable(): # Allow initializing certain syntax collections with result builders
         create_convenience_initializer = True
-        default_value = ' = { nil }' if child.type().is_optional else ' = { %s([]) }' % (child.type().buildable())
-        convenience_init_result_builder_parameters.append('@%s %sBuilder: () -> %s%s' % (child.type().non_optional().result_builder(), child.name(), child.type().expressible_as(), default_value))
+        default_value = ' = { nil }' if child.type().is_optional else ' = { %s([]) }' % (child.type().builder_initializable_type().buildable())
+        convenience_init_result_builder_parameters.append('@%s %sBuilder: () -> %s%s' % (
+          child.type().builder_initializable_type().non_optional().result_builder(),
+          child.name(),
+          child.type().builder_initializable_type().expressible_as(),
+          default_value
+        ))
         produce_expr = '%sBuilder()' % child.name()
       elif child.type().token() and not child.type().token().text: # Allow initializing identifier or a token without default text with String value
         create_convenience_initializer = True
@@ -85,28 +101,31 @@ public struct ${type.buildable()}: ${base_type.buildable()}, ${type.expressible_
   ///  - Initializing syntax collections using result builders
   ///  - Initializing tokens without default text using strings
   public init(
+    leadingTrivia: Trivia = [],
     ${',\n    '.join(convenience_init_normal_parameters + convenience_init_result_builder_parameters)}
   ) {
     self.init(
+      leadingTrivia: leadingTrivia,
       ${',\n      '.join(delegated_init_args)}
     )
   }
 %   end
 
-  func build${type.base_name()}(format: Format, leadingTrivia: Trivia? = nil) -> ${type.syntax()} {
+  /// Builds a `${type.syntax()}`.
+  /// - Parameter format: The `Format` to use.
+  /// - Parameter leadingTrivia: Additional leading trivia to attach, typically used for indentation.
+  /// - Returns: The built `${type.syntax()}`.
+  func build${type.base_name()}(format: Format, leadingTrivia additionalLeadingTrivia: Trivia? = nil) -> ${type.syntax()} {
     let result = SyntaxFactory.make${type.base_name()}(
       ${',\n      '.join(['%s: %s' % (child.name(), child.generate_expr_build_syntax_node(child.name(), 'format')) for child in children])}
     )
-    if let leadingTrivia = leadingTrivia {
-      return result.withLeadingTrivia(leadingTrivia + (result.leadingTrivia ?? []))
-    } else {
-      return result
-    }
+    let combinedLeadingTrivia = leadingTrivia + (additionalLeadingTrivia ?? []) + (result.leadingTrivia ?? [])
+    return result.withLeadingTrivia(combinedLeadingTrivia)
   }
 
   /// Conformance to `${base_type.buildable()}`.
-  public func build${base_type.base_name()}(format: Format, leadingTrivia: Trivia? = nil) -> ${base_type.syntax()} {
-    let result = build${type.base_name()}(format: format, leadingTrivia: leadingTrivia)
+  public func build${base_type.base_name()}(format: Format, leadingTrivia additionalLeadingTrivia: Trivia? = nil) -> ${base_type.syntax()} {
+    let result = build${type.base_name()}(format: format, leadingTrivia: additionalLeadingTrivia)
     return ${base_type.syntax()}(result)
   }
 
@@ -114,6 +133,23 @@ public struct ${type.buildable()}: ${base_type.buildable()}, ${type.expressible_
   public func create${type.buildable_base_name()}() -> ${type.buildable()} {
     return self
   }
+%   if has_with_trailing_comma_trait:
+%     trailing_comma_init_args = []
+%     for child in children:
+%       if child.name() == 'trailingComma':
+%         trailing_comma_init_args.append('%s: withComma ? .comma : nil' % (child.name()))
+%       else:
+%         trailing_comma_init_args.append('%s: %s' % (child.name(), child.name()))
+%       end
+%     end
+
+  /// Conformance to `HasTrailingComma`.
+  public func withTrailingComma(_ withComma: Bool) -> Self {
+      return Self.init(
+        ${',\n        '.join(trailing_comma_init_args)}
+      )
+  }
+%   end
 
   /// `${type.buildable()}` might conform to `${base_type.expressible_as()}` via different `ExpressibleAs*` paths.
   /// Thus, there are multiple default implementations for `create${base_type.buildable_base_name()}`, some of which perform conversions through `ExpressibleAs*` protocols.

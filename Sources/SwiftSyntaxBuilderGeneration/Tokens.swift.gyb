@@ -1,0 +1,135 @@
+%{
+  from gyb_syntax_support import *
+  from gyb_syntax_support.Token import *
+  # -*- mode: Swift -*-
+  # Ignore the following admonition it applies to the resulting .swift file only
+}%
+//// Automatically Generated From Tokens.swift.gyb.
+//// Do Not Edit Directly!
+//===----------------------------------------------------------------------===//
+//
+// This source file is part of the Swift.org open source project
+//
+// Copyright (c) 2014 - 2022 Apple Inc. and the Swift project authors
+// Licensed under Apache License v2.0 with Runtime Library Exception
+//
+// See https://swift.org/LICENSE.txt for license information
+// See https://swift.org/CONTRIBUTORS.txt for the list of Swift project authors
+//
+//===----------------------------------------------------------------------===//
+
+/// Represents the specification for a Token in the TokenSyntax file.
+class Token {
+  let name: String
+  let kind: String
+  let serializationCode: Int
+  let unprefixedKind: String
+  let text: String?
+  let classification: String
+  let isKeyword: Bool
+
+  var swiftKind: String {
+    let name = self.name
+
+    if isKeyword {
+      return name + "Keyword"
+    } else {
+      return name
+    }
+  }
+
+  init(name: String, kind: String, serializationCode: Int, unprefixedKind: String? = nil, text: String? = nil, classification: String = "None", isKeyword: Bool = false) {
+    self.name = name
+    self.kind = kind
+    self.serializationCode = serializationCode
+    if let unprefixedKind = unprefixedKind {
+      self.unprefixedKind = unprefixedKind
+    } else {
+      self.unprefixedKind = kind
+    }
+    self.text = text
+    self.classification = classification
+    self.isKeyword = isKeyword
+  }
+}
+
+/// Represents a keyword token.
+class Keyword: Token {
+  init(name: String, serializationCode: Int, text: String, classification: String = "Keyword") {
+    super.init(name: name, kind: "kw_\(text)", serializationCode: serializationCode, unprefixedKind: text, text: text, classification: classification, isKeyword: true)
+  }
+}
+
+class SwiftKeyword: Keyword { }
+
+class DeclKeyword: SwiftKeyword { }
+
+class StmtKeyword: SwiftKeyword { }
+
+class ExprKeyword: SwiftKeyword { }
+
+class PatternKeyword: SwiftKeyword { }
+
+class SilKeyword: Keyword { }
+
+class PoundKeyword: Token {
+  init(name: String, kind: String, serializationCode: Int, text: String, classification: String = "Keyword") {
+    super.init(name: name, kind: "pound_\(kind)", serializationCode: serializationCode, unprefixedKind: kind, text: text, classification: classification, isKeyword: true)
+  }
+}
+
+class PoundObjectLiteral: PoundKeyword {
+  let description: String
+  let `protocol`: String
+
+  init(name: String, kind: String, serializationCode: Int, text: String, classification: String = "ObjectLiteral", description: String, `protocol`: String) {
+    self.description = `description`
+    self.`protocol` = `protocol`
+    super.init(name: name, kind: kind, serializationCode: serializationCode, text: text, classification: classification)
+  }
+}
+
+class PoundConfig: PoundKeyword { }
+
+class PoundDirectiveKeyword: PoundKeyword {
+  override init(name: String, kind: String, serializationCode: Int, text: String, classification: String = "PoundDirectiveKeyword") {
+    super.init(name: name, kind: kind, serializationCode: serializationCode, text: text, classification: classification)
+  }
+}
+
+class PoundConditionalDirectiveKeyword: PoundDirectiveKeyword {
+  override init(name: String, kind: String, serializationCode: Int, text: String, classification: String = "PoundDirectiveKeyword") {
+    super.init(name: name, kind: kind, serializationCode: serializationCode, text: text, classification: classification)
+  }
+}
+
+class Punctuator: Token { }
+
+class Literal: Token { }
+
+class Misc: Token { }
+
+let SYNTAX_TOKENS: [Token] = [
+% for token in SYNTAX_TOKENS:
+%   class_name = type(token).__name__
+%   parameters = ["name: \"%s\"" % token.name]
+%   if class_name in ['Keyword', 'SwiftKeyword', 'DeclKeyword', 'StmtKeyword', 'ExprKeyword', 'PatternKeyword', 'SilKeyword']:
+%     parameters += ["serializationCode: %s" % token.serialization_code, "text: \"%s\"" % token.text]
+%   elif class_name in ['PoundKeyword', 'PoundConfig', 'PoundDirectiveKeyword', 'PoundConditionalDirectiveKeyword']:
+%     parameters += ["kind: \"%s\"" % token.kind, "serializationCode: %s" % token.serialization_code, "text: \"%s\"" % token.text]
+%   elif class_name in ['Punctuator', 'Misc', 'Literal']:
+%     parameters += ["kind: \"%s\"" % token.kind, "serializationCode: %s" % token.serialization_code]
+%     if token.text:
+%       parameters += ["text: \"%s\"" % token.text]
+%     end
+%   elif class_name == 'PoundObjectLiteral':
+%     parameters += ["kind: \"%s\"" % token.kind, "serializationCode: %s" % token.serialization_code, "text: \"%s\"" % token.text, "description: \"%s\"" % token.description, "protocol: \"%s\"" % token.protocol]
+%   else:
+%     print("Unknown token `%s`", (token.name), file=sys.stderr)
+%     sys.exit(1)
+%   end
+  ${class_name}(${", ".join(parameters)}),
+% end
+]
+
+let SYNTAX_TOKEN_MAP = Dictionary(uniqueKeysWithValues: SYNTAX_TOKENS.map { ("\($0.name)Token", $0) })

@@ -83,7 +83,7 @@ public enum SyntaxFactory {
 %   end
 
 %   if not node.is_base():
-  public static func makeBlank${node.syntax_kind}() -> ${node.name} {
+  public static func makeBlank${node.syntax_kind}(presence: SourcePresence = .present) -> ${node.name} {
     let data = SyntaxData.forRoot(RawSyntax.create(kind: .${node.swift_syntax_kind},
       layout: [
 %     for child in node.children:
@@ -93,7 +93,7 @@ public enum SyntaxFactory {
       ${make_missing_swift_child(child)},
 %       end
 %     end
-    ], length: .zero, presence: .present))
+    ], length: .zero, presence: presence))
     return ${node.name}(data)
   }
 %   end
@@ -101,24 +101,38 @@ public enum SyntaxFactory {
 
 /// MARK: Token Creation APIs
 
+%{
+  def token_trivia(requires_space):
+    return '.space' if requires_space else '[]'
+}%
+
 % for token in SYNTAX_TOKENS:
+%   leading_trivia = token_trivia(token.requires_leading_space)
+%   trailing_trivia = token_trivia(token.requires_trailing_space)
 %   if token.is_keyword:
-  public static func make${token.name}Keyword(leadingTrivia: Trivia = [],
-    trailingTrivia: Trivia = []) -> TokenSyntax {
+  public static func make${token.name}Keyword(
+    leadingTrivia: Trivia = ${leading_trivia},
+    trailingTrivia: Trivia = ${trailing_trivia}
+  ) -> TokenSyntax {
     return makeToken(.${token.swift_kind()}, presence: .present,
                      leadingTrivia: leadingTrivia,
                      trailingTrivia: trailingTrivia)
   }
 %   elif token.text:
-  public static func make${token.name}Token(leadingTrivia: Trivia = [],
-    trailingTrivia: Trivia = []) -> TokenSyntax {
+  public static func make${token.name}Token(
+    leadingTrivia: Trivia = ${leading_trivia},
+    trailingTrivia: Trivia = ${trailing_trivia}
+  ) -> TokenSyntax {
     return makeToken(.${token.swift_kind()}, presence: .present,
                      leadingTrivia: leadingTrivia,
                      trailingTrivia: trailingTrivia)
   }
 %   else:
-  public static func make${token.name}(_ text: String,
-    leadingTrivia: Trivia = [], trailingTrivia: Trivia = []) -> TokenSyntax {
+  public static func make${token.name}(
+    _ text: String,
+    leadingTrivia: Trivia = ${leading_trivia},
+    trailingTrivia: Trivia = ${trailing_trivia}
+  ) -> TokenSyntax {
     return makeToken(.${token.swift_kind()}(text), presence: .present,
                      leadingTrivia: leadingTrivia,
                      trailingTrivia: trailingTrivia)

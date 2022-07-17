@@ -12,8 +12,6 @@
 //
 //===----------------------------------------------------------------------===//
 
-import Foundation
-
 /// A contiguous stretch of a single kind of trivia. The constituent part of
 /// a `Trivia` collection.
 ///
@@ -47,6 +45,8 @@ public enum TriviaPiece {
     case docBlockComment(String)
     /// Any skipped garbage text.
     case garbageText(String)
+    /// A script command, starting with '#!'.
+    case shebang(String)
 }
 
 extension TriviaPiece: TextOutputStreamable {
@@ -83,6 +83,8 @@ extension TriviaPiece: TextOutputStreamable {
       target.write(text)
     case let .garbageText(text):
       target.write(text)
+    case let .shebang(text):
+      target.write(text)
     }
   }
 }
@@ -90,7 +92,34 @@ extension TriviaPiece: TextOutputStreamable {
 extension TriviaPiece: CustomDebugStringConvertible {
   /// Returns a description used by dump.
   public var debugDescription: String {
-    return "TriviaPiece"
+    switch self {
+    case .spaces(let data):
+      return "spaces(\(data))"
+    case .tabs(let data):
+      return "tabs(\(data))"
+    case .verticalTabs(let data):
+      return "verticalTabs(\(data))"
+    case .formfeeds(let data):
+      return "formfeeds(\(data))"
+    case .newlines(let data):
+      return "newlines(\(data))"
+    case .carriageReturns(let data):
+      return "carriageReturns(\(data))"
+    case .carriageReturnLineFeeds(let data):
+      return "carriageReturnLineFeeds(\(data))"
+    case .lineComment(let name):
+      return "lineComment(\(name))"
+    case .blockComment(let name):
+      return "blockComment(\(name))"
+    case .docLineComment(let name):
+      return "docLineComment(\(name))"
+    case .docBlockComment(let name):
+      return "docBlockComment(\(name))"
+    case .garbageText(let name):
+      return "garbageText(\(name))"
+    case .shebang(let name):
+      return "shebang(\(name))"
+    }
   }
 }
 
@@ -109,6 +138,11 @@ public struct Trivia {
     return Trivia(pieces: [])
   }
 
+  /// Whether the Trivia contains no pieces.
+  public var isEmpty: Bool {
+    pieces.isEmpty
+  }
+
   /// Creates a new `Trivia` by appending the provided `TriviaPiece` to the end.
   public func appending(_ piece: TriviaPiece) -> Trivia {
     var copy = pieces
@@ -125,54 +159,105 @@ public struct Trivia {
     return sourceLength.utf8Length
   }
 
-    /// Return a piece of trivia for some number of ' ' characters.
-    public static func spaces(_ count: Int) -> Trivia {
-      return [.spaces(count)]
-    }
-    /// Return a piece of trivia for some number of '\t' characters.
-    public static func tabs(_ count: Int) -> Trivia {
-      return [.tabs(count)]
-    }
-    /// Return a piece of trivia for some number of '\u{2B7F}' characters.
-    public static func verticalTabs(_ count: Int) -> Trivia {
-      return [.verticalTabs(count)]
-    }
-    /// Return a piece of trivia for some number of '\u{240C}' characters.
-    public static func formfeeds(_ count: Int) -> Trivia {
-      return [.formfeeds(count)]
-    }
-    /// Return a piece of trivia for some number of '\n' characters.
-    public static func newlines(_ count: Int) -> Trivia {
-      return [.newlines(count)]
-    }
-    /// Return a piece of trivia for some number of '\r' characters.
-    public static func carriageReturns(_ count: Int) -> Trivia {
-      return [.carriageReturns(count)]
-    }
-    /// Return a piece of trivia for some number of '\r\n' characters.
-    public static func carriageReturnLineFeeds(_ count: Int) -> Trivia {
-      return [.carriageReturnLineFeeds(count)]
-    }
-    /// Return a piece of trivia for LineComment.
-    public static func lineComment(_ text: String) -> Trivia {
-      return [.lineComment(text)]
-    }
-    /// Return a piece of trivia for BlockComment.
-    public static func blockComment(_ text: String) -> Trivia {
-      return [.blockComment(text)]
-    }
-    /// Return a piece of trivia for DocLineComment.
-    public static func docLineComment(_ text: String) -> Trivia {
-      return [.docLineComment(text)]
-    }
-    /// Return a piece of trivia for DocBlockComment.
-    public static func docBlockComment(_ text: String) -> Trivia {
-      return [.docBlockComment(text)]
-    }
-    /// Return a piece of trivia for GarbageText.
-    public static func garbageText(_ text: String) -> Trivia {
-      return [.garbageText(text)]
-    }
+  /// Returns a piece of trivia for some number of ' ' characters.
+  public static func spaces(_ count: Int) -> Trivia {
+    return [.spaces(count)]
+  }
+
+  /// Gets a piece of trivia for ' ' characters.
+  public static var space: Trivia {
+    return .spaces(1)
+  }
+
+  /// Returns a piece of trivia for some number of '\t' characters.
+  public static func tabs(_ count: Int) -> Trivia {
+    return [.tabs(count)]
+  }
+
+  /// Gets a piece of trivia for '\t' characters.
+  public static var tab: Trivia {
+    return .tabs(1)
+  }
+
+  /// Returns a piece of trivia for some number of '\u{2B7F}' characters.
+  public static func verticalTabs(_ count: Int) -> Trivia {
+    return [.verticalTabs(count)]
+  }
+
+  /// Gets a piece of trivia for '\u{2B7F}' characters.
+  public static var verticalTab: Trivia {
+    return .verticalTabs(1)
+  }
+
+  /// Returns a piece of trivia for some number of '\u{240C}' characters.
+  public static func formfeeds(_ count: Int) -> Trivia {
+    return [.formfeeds(count)]
+  }
+
+  /// Gets a piece of trivia for '\u{240C}' characters.
+  public static var formfeed: Trivia {
+    return .formfeeds(1)
+  }
+
+  /// Returns a piece of trivia for some number of '\n' characters.
+  public static func newlines(_ count: Int) -> Trivia {
+    return [.newlines(count)]
+  }
+
+  /// Gets a piece of trivia for '\n' characters.
+  public static var newline: Trivia {
+    return .newlines(1)
+  }
+
+  /// Returns a piece of trivia for some number of '\r' characters.
+  public static func carriageReturns(_ count: Int) -> Trivia {
+    return [.carriageReturns(count)]
+  }
+
+  /// Gets a piece of trivia for '\r' characters.
+  public static var carriageReturn: Trivia {
+    return .carriageReturns(1)
+  }
+
+  /// Returns a piece of trivia for some number of '\r\n' characters.
+  public static func carriageReturnLineFeeds(_ count: Int) -> Trivia {
+    return [.carriageReturnLineFeeds(count)]
+  }
+
+  /// Gets a piece of trivia for '\r\n' characters.
+  public static var carriageReturnLineFeed: Trivia {
+    return .carriageReturnLineFeeds(1)
+  }
+
+  /// Returns a piece of trivia for LineComment.
+  public static func lineComment(_ text: String) -> Trivia {
+    return [.lineComment(text)]
+  }
+
+  /// Returns a piece of trivia for BlockComment.
+  public static func blockComment(_ text: String) -> Trivia {
+    return [.blockComment(text)]
+  }
+
+  /// Returns a piece of trivia for DocLineComment.
+  public static func docLineComment(_ text: String) -> Trivia {
+    return [.docLineComment(text)]
+  }
+
+  /// Returns a piece of trivia for DocBlockComment.
+  public static func docBlockComment(_ text: String) -> Trivia {
+    return [.docBlockComment(text)]
+  }
+
+  /// Returns a piece of trivia for GarbageText.
+  public static func garbageText(_ text: String) -> Trivia {
+    return [.garbageText(text)]
+  }
+
+  /// Returns a piece of trivia for Shebang.
+  public static func shebang(_ text: String) -> Trivia {
+    return [.shebang(text)]
+  }
 }
 
 extension Trivia: Equatable {}
@@ -238,6 +323,8 @@ extension TriviaPiece {
       return SourceLength(of: text)
     case let .garbageText(text):
       return SourceLength(of: text)
+    case let .shebang(text):
+      return SourceLength(of: text)
     }
   }
 }
@@ -270,6 +357,8 @@ extension TriviaPiece {
       return .docBlockComment(.fromBuffer(textBuffer))
     case 12:
       return .garbageText(.fromBuffer(textBuffer))
+    case 13:
+      return .shebang(.fromBuffer(textBuffer))
     default:
       fatalError("unexpected trivia piece kind \(piece.kind)")
     }
@@ -300,6 +389,8 @@ extension TriviaPiece {
     case 11:
       return true
     case 12:
+      return true
+    case 13:
       return true
     default:
       fatalError("unexpected trivia piece kind \(kind)")
@@ -333,6 +424,8 @@ internal enum TriviaPieceKind: CTriviaKind {
     case docBlockComment = 11
     /// Any skipped garbage text.
     case garbageText = 12
+    /// A script command, starting with '#!'.
+    case shebang = 13
 
   static func fromRawValue(_ rawValue: CTriviaKind) -> TriviaPieceKind {
     return TriviaPieceKind(rawValue: rawValue)!
@@ -394,6 +487,12 @@ extension TriviaPiece {
       let length = text.utf8.count
       return text.utf8.withContiguousStorageIfAvailable({ (buf: UnsafeBufferPointer<UInt8>) in
         return body(.init(kind: .garbageText, length: length, customText: buf))
+      })!
+    case var .shebang(text):
+      text.makeContiguousUTF8()
+      let length = text.utf8.count
+      return text.utf8.withContiguousStorageIfAvailable({ (buf: UnsafeBufferPointer<UInt8>) in
+        return body(.init(kind: .shebang, length: length, customText: buf))
       })!
     }
   }

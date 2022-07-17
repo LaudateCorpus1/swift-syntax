@@ -1136,6 +1136,27 @@ open class SyntaxRewriter {
     return Syntax(visitChildren(node))
   }
 
+  /// Visit a `BackDeployAttributeSpecListSyntax`.
+  ///   - Parameter node: the node that is being visited
+  ///   - Returns: the rewritten node
+  open func visit(_ node: BackDeployAttributeSpecListSyntax) -> Syntax {
+    return Syntax(visitChildren(node))
+  }
+
+  /// Visit a `BackDeployVersionListSyntax`.
+  ///   - Parameter node: the node that is being visited
+  ///   - Returns: the rewritten node
+  open func visit(_ node: BackDeployVersionListSyntax) -> Syntax {
+    return Syntax(visitChildren(node))
+  }
+
+  /// Visit a `BackDeployVersionArgumentSyntax`.
+  ///   - Parameter node: the node that is being visited
+  ///   - Returns: the rewritten node
+  open func visit(_ node: BackDeployVersionArgumentSyntax) -> Syntax {
+    return Syntax(visitChildren(node))
+  }
+
   /// Visit a `ContinueStmtSyntax`.
   ///   - Parameter node: the node that is being visited
   ///   - Returns: the rewritten node
@@ -1437,6 +1458,20 @@ open class SyntaxRewriter {
     return Syntax(visitChildren(node))
   }
 
+  /// Visit a `PrimaryAssociatedTypeListSyntax`.
+  ///   - Parameter node: the node that is being visited
+  ///   - Returns: the rewritten node
+  open func visit(_ node: PrimaryAssociatedTypeListSyntax) -> Syntax {
+    return Syntax(visitChildren(node))
+  }
+
+  /// Visit a `PrimaryAssociatedTypeSyntax`.
+  ///   - Parameter node: the node that is being visited
+  ///   - Returns: the rewritten node
+  open func visit(_ node: PrimaryAssociatedTypeSyntax) -> Syntax {
+    return Syntax(visitChildren(node))
+  }
+
   /// Visit a `GenericParameterClauseSyntax`.
   ///   - Parameter node: the node that is being visited
   ///   - Returns: the rewritten node
@@ -1448,6 +1483,13 @@ open class SyntaxRewriter {
   ///   - Parameter node: the node that is being visited
   ///   - Returns: the rewritten node
   open func visit(_ node: ConformanceRequirementSyntax) -> Syntax {
+    return Syntax(visitChildren(node))
+  }
+
+  /// Visit a `PrimaryAssociatedTypeClauseSyntax`.
+  ///   - Parameter node: the node that is being visited
+  ///   - Returns: the rewritten node
+  open func visit(_ node: PrimaryAssociatedTypeClauseSyntax) -> Syntax {
     return Syntax(visitChildren(node))
   }
 
@@ -1500,10 +1542,10 @@ open class SyntaxRewriter {
     return TypeSyntax(visitChildren(node))
   }
 
-  /// Visit a `SomeTypeSyntax`.
+  /// Visit a `ConstrainedSugarTypeSyntax`.
   ///   - Parameter node: the node that is being visited
   ///   - Returns: the rewritten node
-  open func visit(_ node: SomeTypeSyntax) -> TypeSyntax {
+  open func visit(_ node: ConstrainedSugarTypeSyntax) -> TypeSyntax {
     return TypeSyntax(visitChildren(node))
   }
 
@@ -3392,6 +3434,36 @@ open class SyntaxRewriter {
   }
 
   /// Implementation detail of visit(_:). Do not call directly.
+  private func visitImplBackDeployAttributeSpecListSyntax(_ data: SyntaxData) -> Syntax {
+      let node = BackDeployAttributeSpecListSyntax(data)
+      // Accessing _syntaxNode directly is faster than calling Syntax(node)
+      visitPre(node._syntaxNode)
+      defer { visitPost(node._syntaxNode) }
+      if let newNode = visitAny(node._syntaxNode) { return newNode }
+      return visit(node)
+  }
+
+  /// Implementation detail of visit(_:). Do not call directly.
+  private func visitImplBackDeployVersionListSyntax(_ data: SyntaxData) -> Syntax {
+      let node = BackDeployVersionListSyntax(data)
+      // Accessing _syntaxNode directly is faster than calling Syntax(node)
+      visitPre(node._syntaxNode)
+      defer { visitPost(node._syntaxNode) }
+      if let newNode = visitAny(node._syntaxNode) { return newNode }
+      return visit(node)
+  }
+
+  /// Implementation detail of visit(_:). Do not call directly.
+  private func visitImplBackDeployVersionArgumentSyntax(_ data: SyntaxData) -> Syntax {
+      let node = BackDeployVersionArgumentSyntax(data)
+      // Accessing _syntaxNode directly is faster than calling Syntax(node)
+      visitPre(node._syntaxNode)
+      defer { visitPost(node._syntaxNode) }
+      if let newNode = visitAny(node._syntaxNode) { return newNode }
+      return visit(node)
+  }
+
+  /// Implementation detail of visit(_:). Do not call directly.
   private func visitImplContinueStmtSyntax(_ data: SyntaxData) -> Syntax {
       let node = ContinueStmtSyntax(data)
       // Accessing _syntaxNode directly is faster than calling Syntax(node)
@@ -3822,6 +3894,26 @@ open class SyntaxRewriter {
   }
 
   /// Implementation detail of visit(_:). Do not call directly.
+  private func visitImplPrimaryAssociatedTypeListSyntax(_ data: SyntaxData) -> Syntax {
+      let node = PrimaryAssociatedTypeListSyntax(data)
+      // Accessing _syntaxNode directly is faster than calling Syntax(node)
+      visitPre(node._syntaxNode)
+      defer { visitPost(node._syntaxNode) }
+      if let newNode = visitAny(node._syntaxNode) { return newNode }
+      return visit(node)
+  }
+
+  /// Implementation detail of visit(_:). Do not call directly.
+  private func visitImplPrimaryAssociatedTypeSyntax(_ data: SyntaxData) -> Syntax {
+      let node = PrimaryAssociatedTypeSyntax(data)
+      // Accessing _syntaxNode directly is faster than calling Syntax(node)
+      visitPre(node._syntaxNode)
+      defer { visitPost(node._syntaxNode) }
+      if let newNode = visitAny(node._syntaxNode) { return newNode }
+      return visit(node)
+  }
+
+  /// Implementation detail of visit(_:). Do not call directly.
   private func visitImplGenericParameterClauseSyntax(_ data: SyntaxData) -> Syntax {
       let node = GenericParameterClauseSyntax(data)
       // Accessing _syntaxNode directly is faster than calling Syntax(node)
@@ -3834,6 +3926,16 @@ open class SyntaxRewriter {
   /// Implementation detail of visit(_:). Do not call directly.
   private func visitImplConformanceRequirementSyntax(_ data: SyntaxData) -> Syntax {
       let node = ConformanceRequirementSyntax(data)
+      // Accessing _syntaxNode directly is faster than calling Syntax(node)
+      visitPre(node._syntaxNode)
+      defer { visitPost(node._syntaxNode) }
+      if let newNode = visitAny(node._syntaxNode) { return newNode }
+      return visit(node)
+  }
+
+  /// Implementation detail of visit(_:). Do not call directly.
+  private func visitImplPrimaryAssociatedTypeClauseSyntax(_ data: SyntaxData) -> Syntax {
+      let node = PrimaryAssociatedTypeClauseSyntax(data)
       // Accessing _syntaxNode directly is faster than calling Syntax(node)
       visitPre(node._syntaxNode)
       defer { visitPost(node._syntaxNode) }
@@ -3912,8 +4014,8 @@ open class SyntaxRewriter {
   }
 
   /// Implementation detail of visit(_:). Do not call directly.
-  private func visitImplSomeTypeSyntax(_ data: SyntaxData) -> Syntax {
-      let node = SomeTypeSyntax(data)
+  private func visitImplConstrainedSugarTypeSyntax(_ data: SyntaxData) -> Syntax {
+      let node = ConstrainedSugarTypeSyntax(data)
       // Accessing _syntaxNode directly is faster than calling Syntax(node)
       visitPre(node._syntaxNode)
       defer { visitPost(node._syntaxNode) }
@@ -4591,6 +4693,12 @@ open class SyntaxRewriter {
       return visitImplQualifiedDeclNameSyntax
     case .functionDeclName:
       return visitImplFunctionDeclNameSyntax
+    case .backDeployAttributeSpecList:
+      return visitImplBackDeployAttributeSpecListSyntax
+    case .backDeployVersionList:
+      return visitImplBackDeployVersionListSyntax
+    case .backDeployVersionArgument:
+      return visitImplBackDeployVersionArgumentSyntax
     case .continueStmt:
       return visitImplContinueStmtSyntax
     case .whileStmt:
@@ -4677,10 +4785,16 @@ open class SyntaxRewriter {
       return visitImplGenericParameterListSyntax
     case .genericParameter:
       return visitImplGenericParameterSyntax
+    case .primaryAssociatedTypeList:
+      return visitImplPrimaryAssociatedTypeListSyntax
+    case .primaryAssociatedType:
+      return visitImplPrimaryAssociatedTypeSyntax
     case .genericParameterClause:
       return visitImplGenericParameterClauseSyntax
     case .conformanceRequirement:
       return visitImplConformanceRequirementSyntax
+    case .primaryAssociatedTypeClause:
+      return visitImplPrimaryAssociatedTypeClauseSyntax
     case .simpleTypeIdentifier:
       return visitImplSimpleTypeIdentifierSyntax
     case .memberTypeIdentifier:
@@ -4695,8 +4809,8 @@ open class SyntaxRewriter {
       return visitImplMetatypeTypeSyntax
     case .optionalType:
       return visitImplOptionalTypeSyntax
-    case .someType:
-      return visitImplSomeTypeSyntax
+    case .constrainedSugarType:
+      return visitImplConstrainedSugarTypeSyntax
     case .implicitlyUnwrappedOptionalType:
       return visitImplImplicitlyUnwrappedOptionalTypeSyntax
     case .compositionTypeElement:
@@ -5098,6 +5212,12 @@ open class SyntaxRewriter {
       return visitImplQualifiedDeclNameSyntax(data)
     case .functionDeclName:
       return visitImplFunctionDeclNameSyntax(data)
+    case .backDeployAttributeSpecList:
+      return visitImplBackDeployAttributeSpecListSyntax(data)
+    case .backDeployVersionList:
+      return visitImplBackDeployVersionListSyntax(data)
+    case .backDeployVersionArgument:
+      return visitImplBackDeployVersionArgumentSyntax(data)
     case .continueStmt:
       return visitImplContinueStmtSyntax(data)
     case .whileStmt:
@@ -5184,10 +5304,16 @@ open class SyntaxRewriter {
       return visitImplGenericParameterListSyntax(data)
     case .genericParameter:
       return visitImplGenericParameterSyntax(data)
+    case .primaryAssociatedTypeList:
+      return visitImplPrimaryAssociatedTypeListSyntax(data)
+    case .primaryAssociatedType:
+      return visitImplPrimaryAssociatedTypeSyntax(data)
     case .genericParameterClause:
       return visitImplGenericParameterClauseSyntax(data)
     case .conformanceRequirement:
       return visitImplConformanceRequirementSyntax(data)
+    case .primaryAssociatedTypeClause:
+      return visitImplPrimaryAssociatedTypeClauseSyntax(data)
     case .simpleTypeIdentifier:
       return visitImplSimpleTypeIdentifierSyntax(data)
     case .memberTypeIdentifier:
@@ -5202,8 +5328,8 @@ open class SyntaxRewriter {
       return visitImplMetatypeTypeSyntax(data)
     case .optionalType:
       return visitImplOptionalTypeSyntax(data)
-    case .someType:
-      return visitImplSomeTypeSyntax(data)
+    case .constrainedSugarType:
+      return visitImplConstrainedSugarTypeSyntax(data)
     case .implicitlyUnwrappedOptionalType:
       return visitImplImplicitlyUnwrappedOptionalTypeSyntax(data)
     case .compositionTypeElement:

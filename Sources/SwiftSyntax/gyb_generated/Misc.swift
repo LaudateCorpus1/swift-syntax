@@ -973,6 +973,24 @@ extension SyntaxNode {
     return FunctionDeclNameSyntax(asSyntaxData)
   }
 
+  public var isBackDeployAttributeSpecList: Bool { return raw.kind == .backDeployAttributeSpecList }
+  public var asBackDeployAttributeSpecList: BackDeployAttributeSpecListSyntax? {
+    guard isBackDeployAttributeSpecList else { return nil }
+    return BackDeployAttributeSpecListSyntax(asSyntaxData)
+  }
+
+  public var isBackDeployVersionList: Bool { return raw.kind == .backDeployVersionList }
+  public var asBackDeployVersionList: BackDeployVersionListSyntax? {
+    guard isBackDeployVersionList else { return nil }
+    return BackDeployVersionListSyntax(asSyntaxData)
+  }
+
+  public var isBackDeployVersionArgument: Bool { return raw.kind == .backDeployVersionArgument }
+  public var asBackDeployVersionArgument: BackDeployVersionArgumentSyntax? {
+    guard isBackDeployVersionArgument else { return nil }
+    return BackDeployVersionArgumentSyntax(asSyntaxData)
+  }
+
   public var isContinueStmt: Bool { return raw.kind == .continueStmt }
   public var asContinueStmt: ContinueStmtSyntax? {
     guard isContinueStmt else { return nil }
@@ -1231,6 +1249,18 @@ extension SyntaxNode {
     return GenericParameterSyntax(asSyntaxData)
   }
 
+  public var isPrimaryAssociatedTypeList: Bool { return raw.kind == .primaryAssociatedTypeList }
+  public var asPrimaryAssociatedTypeList: PrimaryAssociatedTypeListSyntax? {
+    guard isPrimaryAssociatedTypeList else { return nil }
+    return PrimaryAssociatedTypeListSyntax(asSyntaxData)
+  }
+
+  public var isPrimaryAssociatedType: Bool { return raw.kind == .primaryAssociatedType }
+  public var asPrimaryAssociatedType: PrimaryAssociatedTypeSyntax? {
+    guard isPrimaryAssociatedType else { return nil }
+    return PrimaryAssociatedTypeSyntax(asSyntaxData)
+  }
+
   public var isGenericParameterClause: Bool { return raw.kind == .genericParameterClause }
   public var asGenericParameterClause: GenericParameterClauseSyntax? {
     guard isGenericParameterClause else { return nil }
@@ -1241,6 +1271,12 @@ extension SyntaxNode {
   public var asConformanceRequirement: ConformanceRequirementSyntax? {
     guard isConformanceRequirement else { return nil }
     return ConformanceRequirementSyntax(asSyntaxData)
+  }
+
+  public var isPrimaryAssociatedTypeClause: Bool { return raw.kind == .primaryAssociatedTypeClause }
+  public var asPrimaryAssociatedTypeClause: PrimaryAssociatedTypeClauseSyntax? {
+    guard isPrimaryAssociatedTypeClause else { return nil }
+    return PrimaryAssociatedTypeClauseSyntax(asSyntaxData)
   }
 
   public var isSimpleTypeIdentifier: Bool { return raw.kind == .simpleTypeIdentifier }
@@ -1285,10 +1321,10 @@ extension SyntaxNode {
     return OptionalTypeSyntax(asSyntaxData)
   }
 
-  public var isSomeType: Bool { return raw.kind == .someType }
-  public var asSomeType: SomeTypeSyntax? {
-    guard isSomeType else { return nil }
-    return SomeTypeSyntax(asSyntaxData)
+  public var isConstrainedSugarType: Bool { return raw.kind == .constrainedSugarType }
+  public var asConstrainedSugarType: ConstrainedSugarTypeSyntax? {
+    guard isConstrainedSugarType else { return nil }
+    return ConstrainedSugarTypeSyntax(asSyntaxData)
   }
 
   public var isImplicitlyUnwrappedOptionalType: Bool { return raw.kind == .implicitlyUnwrappedOptionalType }
@@ -1811,6 +1847,12 @@ extension Syntax {
       return node
     case .functionDeclName(let node):
       return node
+    case .backDeployAttributeSpecList(let node):
+      return node
+    case .backDeployVersionList(let node):
+      return node
+    case .backDeployVersionArgument(let node):
+      return node
     case .continueStmt(let node):
       return node
     case .whileStmt(let node):
@@ -1897,9 +1939,15 @@ extension Syntax {
       return node
     case .genericParameter(let node):
       return node
+    case .primaryAssociatedTypeList(let node):
+      return node
+    case .primaryAssociatedType(let node):
+      return node
     case .genericParameterClause(let node):
       return node
     case .conformanceRequirement(let node):
+      return node
+    case .primaryAssociatedTypeClause(let node):
       return node
     case .simpleTypeIdentifier(let node):
       return node
@@ -1915,7 +1963,7 @@ extension Syntax {
       return node
     case .optionalType(let node):
       return node
-    case .someType(let node):
+    case .constrainedSugarType(let node):
       return node
     case .implicitlyUnwrappedOptionalType(let node):
       return node

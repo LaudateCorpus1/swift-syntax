@@ -31,8 +31,24 @@ public enum TokenKind {
   case ${kind}
 % end
 
+  /// Initializes a keyword token kind from its string representation. If the
+  /// given string is not a keyword, this function returns `nil`.
+  public init?(keyword: String) {
+    switch keyword {
+% for token in SYNTAX_TOKENS:
+%   if token.is_keyword:
+    case "${token.text}":
+      self = .${token.swift_kind()}
+%   end
+% end
+    default:
+      return nil
+    }
+  }
+
   /// The textual representation of this token kind.
-  var text: String {
+  @_spi(Testing)
+  public var text: String {
     switch self {
     case .eof: return ""
 % for token in SYNTAX_TOKENS:
@@ -45,11 +61,34 @@ public enum TokenKind {
     }
   }
 
+  /// Returns `true` if the token is a Swift keyword.
+  ///
+  /// Keywords are reserved unconditionally for use by Swift and may not
+  /// appear as identifiers in any position without being escaped. For example,
+  /// `class`, `func`, or `import`.
   public var isKeyword: Bool {
     switch self {
     case .eof: return false
 % for token in SYNTAX_TOKENS:
 %   if token.is_keyword:
+    case .${token.swift_kind()}: return true
+%   else:
+    case .${token.swift_kind()}: return false
+%   end
+% end
+    }
+  }
+
+  /// Returns `true` if the token is a Swift punctuator.
+  ///
+  /// Punctuation tokens generally separate identifiers from each other. For
+  /// example, the '<' and '>' characters in a generic parameter list, or the
+  /// quote characters in a string literal.
+  public var isPunctuation: Bool {
+    switch self {
+    case .eof: return false
+% for token in SYNTAX_TOKENS:
+%   if type(token).__name__ == 'Punctuator':
     case .${token.swift_kind()}: return true
 %   else:
     case .${token.swift_kind()}: return false
@@ -76,7 +115,7 @@ public enum TokenKind {
     case .eof: return .zero
 % for token in SYNTAX_TOKENS:
 %   if token.text:
-    case .${token.swift_kind()}: return SourceLength(utf8Length: ${len(token.text.decode('string_escape'))})
+    case .${token.swift_kind()}: return SourceLength(utf8Length: ${len(token.text.encode('utf-8').decode('unicode-escape'))})
 %   else:
     case .${token.swift_kind()}(let text): return SourceLength(of: text)
 %   end
@@ -168,7 +207,7 @@ extension TokenKind {
 % for token in SYNTAX_TOKENS:
 %   if token.text:
     case .${token.swift_kind()}:
-      let length = ${len(token.text.decode('string_escape'))}
+      let length = ${len(token.text.encode('utf-8').decode('unicode-escape'))}
       return body(.init(kind: .${token.swift_kind()}, length: length))
 %   else:
     case .${token.swift_kind()}(var text):

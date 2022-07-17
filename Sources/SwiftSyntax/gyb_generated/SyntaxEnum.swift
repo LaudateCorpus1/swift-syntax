@@ -180,6 +180,9 @@ public enum SyntaxEnum {
   case derivativeRegistrationAttributeArguments(DerivativeRegistrationAttributeArgumentsSyntax)
   case qualifiedDeclName(QualifiedDeclNameSyntax)
   case functionDeclName(FunctionDeclNameSyntax)
+  case backDeployAttributeSpecList(BackDeployAttributeSpecListSyntax)
+  case backDeployVersionList(BackDeployVersionListSyntax)
+  case backDeployVersionArgument(BackDeployVersionArgumentSyntax)
   case continueStmt(ContinueStmtSyntax)
   case whileStmt(WhileStmtSyntax)
   case deferStmt(DeferStmtSyntax)
@@ -223,8 +226,11 @@ public enum SyntaxEnum {
   case sameTypeRequirement(SameTypeRequirementSyntax)
   case genericParameterList(GenericParameterListSyntax)
   case genericParameter(GenericParameterSyntax)
+  case primaryAssociatedTypeList(PrimaryAssociatedTypeListSyntax)
+  case primaryAssociatedType(PrimaryAssociatedTypeSyntax)
   case genericParameterClause(GenericParameterClauseSyntax)
   case conformanceRequirement(ConformanceRequirementSyntax)
+  case primaryAssociatedTypeClause(PrimaryAssociatedTypeClauseSyntax)
   case simpleTypeIdentifier(SimpleTypeIdentifierSyntax)
   case memberTypeIdentifier(MemberTypeIdentifierSyntax)
   case classRestrictionType(ClassRestrictionTypeSyntax)
@@ -232,7 +238,7 @@ public enum SyntaxEnum {
   case dictionaryType(DictionaryTypeSyntax)
   case metatypeType(MetatypeTypeSyntax)
   case optionalType(OptionalTypeSyntax)
-  case someType(SomeTypeSyntax)
+  case constrainedSugarType(ConstrainedSugarTypeSyntax)
   case implicitlyUnwrappedOptionalType(ImplicitlyUnwrappedOptionalTypeSyntax)
   case compositionTypeElement(CompositionTypeElementSyntax)
   case compositionTypeElementList(CompositionTypeElementListSyntax)
@@ -600,6 +606,12 @@ public extension Syntax {
       return .qualifiedDeclName(QualifiedDeclNameSyntax(self)!)
     case .functionDeclName:
       return .functionDeclName(FunctionDeclNameSyntax(self)!)
+    case .backDeployAttributeSpecList:
+      return .backDeployAttributeSpecList(BackDeployAttributeSpecListSyntax(self)!)
+    case .backDeployVersionList:
+      return .backDeployVersionList(BackDeployVersionListSyntax(self)!)
+    case .backDeployVersionArgument:
+      return .backDeployVersionArgument(BackDeployVersionArgumentSyntax(self)!)
     case .continueStmt:
       return .continueStmt(ContinueStmtSyntax(self)!)
     case .whileStmt:
@@ -686,10 +698,16 @@ public extension Syntax {
       return .genericParameterList(GenericParameterListSyntax(self)!)
     case .genericParameter:
       return .genericParameter(GenericParameterSyntax(self)!)
+    case .primaryAssociatedTypeList:
+      return .primaryAssociatedTypeList(PrimaryAssociatedTypeListSyntax(self)!)
+    case .primaryAssociatedType:
+      return .primaryAssociatedType(PrimaryAssociatedTypeSyntax(self)!)
     case .genericParameterClause:
       return .genericParameterClause(GenericParameterClauseSyntax(self)!)
     case .conformanceRequirement:
       return .conformanceRequirement(ConformanceRequirementSyntax(self)!)
+    case .primaryAssociatedTypeClause:
+      return .primaryAssociatedTypeClause(PrimaryAssociatedTypeClauseSyntax(self)!)
     case .simpleTypeIdentifier:
       return .simpleTypeIdentifier(SimpleTypeIdentifierSyntax(self)!)
     case .memberTypeIdentifier:
@@ -704,8 +722,8 @@ public extension Syntax {
       return .metatypeType(MetatypeTypeSyntax(self)!)
     case .optionalType:
       return .optionalType(OptionalTypeSyntax(self)!)
-    case .someType:
-      return .someType(SomeTypeSyntax(self)!)
+    case .constrainedSugarType:
+      return .constrainedSugarType(ConstrainedSugarTypeSyntax(self)!)
     case .implicitlyUnwrappedOptionalType:
       return .implicitlyUnwrappedOptionalType(ImplicitlyUnwrappedOptionalTypeSyntax(self)!)
     case .compositionTypeElement:

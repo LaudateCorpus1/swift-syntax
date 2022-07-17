@@ -81,6 +81,10 @@ extension Syntax: CustomReflectable {
   }
 }
 
+extension Syntax: Identifiable {
+  public typealias ID = SyntaxIdentifier
+}
+
 /// Protocol that provides a common Hashable implementation for all syntax nodes
 public protocol SyntaxHashable: Hashable {
   var _syntaxNode: Syntax { get }
@@ -442,6 +446,13 @@ public extension SyntaxProtocol {
     return String(reflecting: type(of: self))
   }
 
+  /// Dumps the syntax node and all of its children for debugging purposes.
+  var recursiveDescription: String {
+    var result = ""
+    dump(self, to: &result)
+    return result
+  }
+
   /// Prints the raw value of this node to the provided stream.
   /// - Parameter stream: The stream to which to print the raw tree.
   func write<Target>(to target: inout Target)
@@ -607,7 +618,9 @@ public struct SyntaxNode {
   public var totalLength: SourceLength {
     return raw.totalLength
   }
+}
 
+extension SyntaxNode: Identifiable {
   /// Returns a value representing the unique identity of the node.
   public var id: SyntaxIdentifier {
     return absoluteRaw.info.nodeId
